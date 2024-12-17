@@ -1,13 +1,16 @@
 package fr.eni.encheres.dal;
 
-import com.fasterxml.jackson.databind.util.Named;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.UtilisateurRepository;
+
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +57,23 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
     @Override
     public Optional<Utilisateur> getByLogin(String login) {
-        return Optional.empty();
+        String sql = "select email, mot_de_passe, administrateur from utilisateurs where email = :email";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("login", login);
+        Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params, ((ResultSet rs, int rowNum) ->  {
+            String email = rs.getString("email");
+            String password =  rs.getString("mot_de_passe");
+            boolean administrateur = rs.getBoolean("administrateur");
+
+            Utilisateur user = new Utilisateur();
+            user.setEmail(email);
+            user.setMotDePasse(password);
+            user.setAdministrateur(administrateur);
+
+            return user;
+
+        }));
+        return Optional.ofNullable(utilisateur);
+
     }
 }
