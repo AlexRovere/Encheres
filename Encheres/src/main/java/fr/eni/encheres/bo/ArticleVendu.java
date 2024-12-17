@@ -17,4 +17,121 @@ public class ArticleVendu {
     private Categorie categorie;
     private Utilisateur utilisateur;
     private List<Enchere> encheres = new ArrayList<>();
+
+    public ArticleVendu() {
+    }
+
+    @Override
+    public String toString() {
+        return "ArticleVendu{" +
+                "noArticle=" + noArticle +
+                ", nomArticle='" + nomArticle + '\'' +
+                ", description='" + description + '\'' +
+                ", dateDebutEncheres=" + dateDebutEncheres +
+                ", dateFinEncheres=" + dateFinEncheres +
+                ", miseAPrix=" + miseAPrix +
+                ", prixVente=" + prixVente +
+                ", etatVente=" + etatVente +
+                ", retrait=" + retrait +
+                ", categorie=" + categorie +
+                ", utilisateur=" + utilisateur +
+                ", encheres=" + encheres +
+                '}';
+    }
+
+    public int getNoArticle() {
+        return noArticle;
+    }
+
+    public void setNoArticle(int noArticle) {
+        this.noArticle = noArticle;
+    }
+
+    public String getNomArticle() {
+        return nomArticle;
+    }
+
+    public void setNomArticle(String nomArticle) {
+        this.nomArticle = nomArticle;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getDateDebutEncheres() {
+        return dateDebutEncheres;
+    }
+
+    public void setDateDebutEncheres(LocalDate dateDebutEncheres) {
+        this.dateDebutEncheres = dateDebutEncheres;
+    }
+
+    public LocalDate getDateFinEncheres() {
+        return dateFinEncheres;
+    }
+
+    public void setDateFinEncheres(LocalDate dateFinEncheres) {
+        this.dateFinEncheres = dateFinEncheres;
+    }
+
+    public int getMiseAPrix() {
+        return miseAPrix;
+    }
+
+    public void setMiseAPrix(int miseAPrix) {
+        this.miseAPrix = miseAPrix;
+    }
+
+    public int getPrixVente() {
+        return prixVente;
+    }
+
+    public void setPrixVente(int prixVente) {
+        this.prixVente = prixVente;
+    }
+
+    public int getEtatVente() {
+        return etatVente;
+    }
+
+    public void setEtatVente(int etatVente) {
+        this.etatVente = etatVente;
+    }
+
+    public Retrait getRetrait() {
+        return retrait;
+    }
+
+    public void setRetrait(Retrait retrait) {
+        this.retrait = retrait;
+    }
+
+    public Categorie getCategorie() {
+        return categorie;
+    }
+
+    public void setCategorie(Categorie categorie) {
+        this.categorie = categorie;
+    }
+
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
+    }
+
+    public List<Enchere> getEncheres() {
+        return encheres;
+    }
+
+    public void setEncheres(List<Enchere> encheres) {
+        this.encheres = encheres;
+    }
 }
