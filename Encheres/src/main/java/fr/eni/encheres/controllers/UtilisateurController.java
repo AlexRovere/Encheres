@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class UtilisateurController {
     @GetMapping({"/", "/login"})
     public String getLogin(Model model) {
-        return "pages/utilisateurs/connexionUtilisateur";
+        model.addAttribute("body", "pages/utilisateurs/connexionUtilisateur");
+        return "index";
+//        return "pages/utilisateurs/connexionUtilisateur";
     }
 }

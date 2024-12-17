@@ -54,3 +54,5 @@ CREATE TABLE ARTICLES_VENDUS (
                                  no_utilisateur                INTEGER NOT NULL,
                                  no_categorie                  INTEGER NOT NULL
 );
+
+ALTER TABLE utilisateurs add constraint UQ_utilisateurs_email UNIQUE (email)
