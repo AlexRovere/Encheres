@@ -13,6 +13,7 @@ public class ArticleVendu {
     private int miseAPrix;
     private int prixVente;
     private int etatVente;
+    private boolean retraitEffectue;
     private Retrait retrait;
     private Categorie categorie;
     private Utilisateur utilisateur;
@@ -133,5 +134,13 @@ public class ArticleVendu {
 
     public void setEncheres(List<Enchere> encheres) {
         this.encheres = encheres;
+    }
+
+    public boolean isRetraitEffectue() {
+        return retraitEffectue;
+    }
+
+    public void setRetraitEffectue(boolean retraitEffectue) {
+        this.retraitEffectue = retraitEffectue;
     }
 }

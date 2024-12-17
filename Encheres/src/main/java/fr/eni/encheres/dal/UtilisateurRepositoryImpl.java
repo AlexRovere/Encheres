@@ -57,7 +57,7 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
     @Override
     public Optional<Utilisateur> getByLogin(String login) {
-        String sql = "select email, mot_de_passe, administrateur from utilisateurs where email = :email";
+        String sql = "select email, mot_de_passe, administrateur from utilisateurs where email = :login";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("login", login);
         Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params, ((ResultSet rs, int rowNum) ->  {

@@ -16,18 +16,18 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                                .anyRequest().permitAll()
-//                        .requestMatchers("/encheres", "/css/**", "/js/**", "/images/**").permitAll()
-//                        .requestMatchers("/admin").hasRole("ADMIN")
-//                        .anyRequest().authenticated()
+                        .requestMatchers("/encheres/**", "/utilisateurs/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
-                        .loginPage("/connexionUtilisateur")
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/encheres")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/encheres")
                         .permitAll());
 
         return http.build();
