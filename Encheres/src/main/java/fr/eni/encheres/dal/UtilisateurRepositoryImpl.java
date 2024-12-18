@@ -2,9 +2,11 @@ package fr.eni.encheres.dal;
 
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.UtilisateurRepository;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -36,11 +38,6 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
     }
 
     @Override
-    public void add(Utilisateur entity) {
-
-    }
-
-    @Override
     public Optional<Utilisateur> getById(int noUtilisateur) {
         String sql = "SELECT * FROM utilisateurs WHERE no_utilisateur = :noUtilisateur";
         Map<String, Object> params = new HashMap<>();
@@ -48,17 +45,27 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
         try {
             Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params,
                     new BeanPropertyRowMapper<>(Utilisateur.class));
-;           return Optional.of(utilisateur);
+            ;           return Optional.of(utilisateur);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
+    // Create
+    @Override
+    public void add(Utilisateur utilisateur) {
+        String sql = "INSERT INTO utilisateurs (pseudo, nom, prenom, email, telephone, rue, code_postal, ville, mot_de_passe ) " +
+                "VALUES (:pseudo, :nom, :prenom, :email, :telephone, :rue, :codePostal, :ville, :motDePasse)";
+        namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(utilisateur));
+    }
+
+    // Update
     @Override
     public void update(Utilisateur entity) {
 
     }
 
+    // Delete
     @Override
     public void delete(int id) {
 

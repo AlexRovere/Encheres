@@ -28,16 +28,19 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         return utilisateurRepository.getById(noUtilisateur);
     }
 
+    // Create
     @Override
-    public void add(Utilisateur entity) {
-
+    public void add(Utilisateur utilisateur) {
+        utilisateurRepository.add(utilisateur);
     }
 
+    // Update
     @Override
     public void update(Utilisateur entity) {
 
     }
 
+    // Delete
     @Override
     public void delete(int id) {
 
