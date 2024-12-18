@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArticleVendu {
+public class Article {
     private int noArticle;
     private String nomArticle;
     private String description;
@@ -19,7 +19,7 @@ public class ArticleVendu {
     private Utilisateur utilisateur;
     private List<Enchere> encheres = new ArrayList<>();
 
-    public ArticleVendu() {
+    public Article() {
     }
 
     @Override

@@ -33,6 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 role = new SimpleGrantedAuthority("ROLE_USER");
             }
             List<GrantedAuthority> roles = List.of(role);
+
             return User.builder().username(user.getEmail()).password(user.getMotDePasse()).authorities(roles).build();
         }
 

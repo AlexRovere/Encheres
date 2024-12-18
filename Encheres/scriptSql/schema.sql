@@ -46,7 +46,7 @@ CREATE TABLE utilisateurs
 
 
 
-CREATE TABLE articles_vendus
+CREATE TABLE articles
 (
     no_article          INTEGER primary key generated always as identity,
     nom_article         VARCHAR(50)  NOT NULL,
