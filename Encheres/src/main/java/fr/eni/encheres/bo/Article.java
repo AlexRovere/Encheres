@@ -10,7 +10,7 @@ public class Article {
     private String description;
     private LocalDate dateDebutEncheres;
     private LocalDate dateFinEncheres;
-    private int miseAPrix;
+    private int prixInitial;
     private int prixVente;
     private int etatVente;
     private boolean retraitEffectue;
@@ -30,7 +30,7 @@ public class Article {
                 ", description='" + description + '\'' +
                 ", dateDebutEncheres=" + dateDebutEncheres +
                 ", dateFinEncheres=" + dateFinEncheres +
-                ", miseAPrix=" + miseAPrix +
+                ", prixInitial=" + prixInitial +
                 ", prixVente=" + prixVente +
                 ", etatVente=" + etatVente +
                 ", retrait=" + retrait +
@@ -80,12 +80,12 @@ public class Article {
         this.dateFinEncheres = dateFinEncheres;
     }
 
-    public int getMiseAPrix() {
-        return miseAPrix;
+    public int getPrixInitial() {
+        return prixInitial;
     }
 
-    public void setMiseAPrix(int miseAPrix) {
-        this.miseAPrix = miseAPrix;
+    public void setPrixInitial(int prixInitial) {
+        this.prixInitial = prixInitial;
     }
 
     public int getPrixVente() {

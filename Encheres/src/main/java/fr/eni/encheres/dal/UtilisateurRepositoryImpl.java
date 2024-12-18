@@ -73,22 +73,14 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
     @Override
     public Optional<Utilisateur> getByLogin(String login) {
-        String sql = "select email, mot_de_passe, administrateur from utilisateurs where email = :login";
+        String sql = "select no_utilisateur AS \"noUtilisateur\", \n" +
+                "                     pseudo, nom, prenom, email, telephone, rue,\n" +
+                "                     code_postal AS \"codePostal\", ville, mot_de_passe AS \"motDePasse\", credit, administrateur\n" +
+                "                     from utilisateurs where email = :login";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("login", login);
-        Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params, ((ResultSet rs, int rowNum) ->  {
-            String email = rs.getString("email");
-            String password =  rs.getString("mot_de_passe");
-            boolean administrateur = rs.getBoolean("administrateur");
+        Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params, new BeanPropertyRowMapper<>(Utilisateur.class));
 
-            Utilisateur user = new Utilisateur();
-            user.setEmail(email);
-            user.setMotDePasse(password);
-            user.setAdministrateur(administrateur);
-
-            return user;
-
-        }));
         return Optional.ofNullable(utilisateur);
 
     }

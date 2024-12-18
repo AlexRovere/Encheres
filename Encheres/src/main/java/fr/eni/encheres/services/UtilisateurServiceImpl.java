@@ -45,4 +45,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     public void delete(int id) {
 
     }
+
+    @Override
+    public Optional<Utilisateur> getByLogin(String login) {
+        return utilisateurRepository.getByLogin(login);
+    }
 }

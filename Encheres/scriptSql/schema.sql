@@ -1,7 +1,8 @@
+drop table if exists encheres;
 drop table if exists articles_vendus;
+drop table if exists articles;
 drop table if exists categories;
 drop table if exists retraits;
-drop table if exists encheres;
 drop table if exists utilisateurs;
 
 CREATE TABLE categories
@@ -40,7 +41,7 @@ CREATE TABLE utilisateurs
     code_postal    VARCHAR(20) NOT NULL,
     ville          VARCHAR(50) NOT NULL,
     mot_de_passe   VARCHAR(100) NOT NULL,
-    credit         INTEGER     NOT NULL,
+    credit         INTEGER     NOT NULL default 0,
     administrateur boolean     NOT NULL default false
 );
 
@@ -61,4 +62,8 @@ CREATE TABLE articles
 );
 
 ALTER TABLE utilisateurs
-    add constraint UQ_utilisateurs_email UNIQUE (email)
+    add constraint UQ_utilisateurs_email UNIQUE (email);
+
+
+ALTER TABLE utilisateurs
+    add constraint UQ_utilisateurs_pseudo UNIQUE (pseudo);

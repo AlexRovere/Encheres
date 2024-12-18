@@ -8,10 +8,11 @@
     <div style="color: red;" th:if="${#fields.hasAnyErrors()}">
         <p>Le formulaire comporte des erreurs</p>
     </div>
-    <div class="overflow-scroll mb-20 flex flex-col gap-5">
-        <input type="hidden" th:field="*{noArticle}" id="id">
+    <div class="overflow-scroll mb-20 ">
+        <input type="hidden" th:field="*{noArticle}">
+        <!--        <input type="hidden" th:name="utilisateur" th:value="*{utilisateur.noUtilisateur}" >-->
 
-        <div class="p-5">
+        <div class="p-5 flex flex-col gap-5">
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Nom de l'article</label>
@@ -26,8 +27,9 @@
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Description</label>
-                <input type="text" th:field="*{description}"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <textarea type="text" th:field="*{description}"
+                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                </textarea>
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('description')}" th:text="${erreur}"
                           class="font-medium"></span>
@@ -35,21 +37,25 @@
             </div>
 
             <div>
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Catégorie</label>
-                <input type="text" th:field="*{categorie}" id="categorie"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span th:each="erreur: ${#fields.errors('categorie')}" th:text="${erreur}"
-                          class="font-medium"></span>
-                    <span th:text="${emailAlreadyTaken}" class="font-medium"></span>
-
-                </p>
+                <label for="categorie" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Selectionner
+                    une catégorie</label>
+                <select id="categorie" name="categorie"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option th:selected="${article.categorie?.noCategorie == cat.noCategorie}"
+                            th:each="cat : ${@categorieServiceImpl.getAll()}" th:value="${cat.noCategorie}"
+                            th:text="${cat.libelle + ' ' + cat.noCategorie}"></option>
+                </select>
+                <!--                <p class="mt-2 text-sm text-red-600 dark:text-red-500">-->
+                <!--                    <span th:each="erreur: ${#fields.errors('categorie')}" th:text="${erreur}"-->
+                <!--                          class="font-medium"></span>-->
+                <!--                </p>-->
             </div>
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Photo de l'article</label>
-                <input type="text" id="imageArticle"
+                <input type="file" id="imageArticle"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('description')}" th:text="${erreur}"
                           class="font-medium"></span>
@@ -66,46 +72,53 @@
                 </p>
             </div>
 
-            <div>
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Début de l'enchère</label>
-                <input type="date" th:field="*{dateDebutEncheres}" id="dateDebutEncheres"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+            <div class="flex gap-5">
+
+                <div class="flex-grow">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Début de
+                        l'enchère</label>
+                    <input type="date" th:field="*{dateDebutEncheres}" id="dateDebutEncheres"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('dateDebutEncheres')}" th:text="${erreur}"
                           class="font-medium"></span>
-                </p>
-            </div>
+                    </p>
+                </div>
 
-            <div>
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Fin de l'enchère</label>
-                <input type="date" th:field="*{dateFinEncheres}" id="dateFinEncheres"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                <div class="flex-grow">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Fin de
+                        l'enchère</label>
+                    <input type="date" th:field="*{dateFinEncheres}" id="dateFinEncheres"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('dateFinEncheres')}" th:text="${erreur}"
                           class="font-medium"></span>
-                </p>
+                    </p>
+                </div>
             </div>
 
             <h1>Retrait</h1>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ville</label>
-                <input type="text" id="ville" th:field="*{utilisateur.ville}"
+                <input type="text" id="ville" name="ville" th:value="*{utilisateur.ville}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span th:each="erreur: ${#fields.errors('utilisateur.ville')}" th:text="${erreur}" class="font-medium"></span>
+                    <span th:each="erreur: ${#fields.errors('utilisateur.ville')}" th:text="${erreur}"
+                          class="font-medium"></span>
                 </p>
             </div>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rue</label>
-                <input type="text"  id="rue" th:field="*{utilisateur.rue}"
+                <input type="text" id="rue" name="rue" th:value="*{utilisateur.rue}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span th:each="erreur: ${#fields.errors('utilisateur.rue')}" th:text="${erreur}" class="font-medium"></span>
+                    <span th:each="erreur: ${#fields.errors('utilisateur.rue')}" th:text="${erreur}"
+                          class="font-medium"></span>
                 </p>
             </div>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Code postal</label>
-                <input type="text"  id="codePostal" th:field="*{utilisateur.codePostal}"
+                <input type="text" id="codePostal" name="codePostal" th:value="*{utilisateur.codePostal}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('utilisateur.codePostal')}" th:text="${erreur}"
