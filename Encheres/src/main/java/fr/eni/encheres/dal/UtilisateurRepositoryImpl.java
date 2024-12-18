@@ -2,16 +2,16 @@ package fr.eni.encheres.dal;
 
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.UtilisateurRepository;
-
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -41,8 +41,17 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
     }
 
     @Override
-    public Optional<Utilisateur> getById(int id) {
-        return Optional.empty();
+    public Optional<Utilisateur> getById(int noUtilisateur) {
+        String sql = "SELECT * FROM utilisateurs WHERE no_utilisateur = :noUtilisateur";
+        Map<String, Object> params = new HashMap<>();
+        params.put("noUtilisateur", noUtilisateur);
+        try {
+            Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params,
+                    new BeanPropertyRowMapper<>(Utilisateur.class));
+;           return Optional.of(utilisateur);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

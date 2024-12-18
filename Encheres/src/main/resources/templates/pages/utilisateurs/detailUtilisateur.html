@@ -1,1 +1,31 @@
-Detail utilisateur
+
+    <h1 class="titre-center">Mon profil</h1>
+        <section class="section-detail-utilisateur">
+            <form th:action="@{/utilisateurs/detail/{noUtilisateur}}" method="post" th:object="${utilisateur}" class="form-detail-utilisateur">
+
+                    <label for="pseudo" class="label1-detail-uitilisateur">Pseudo </label>
+                    <input type="text" name="pseudo" id="pseudo" th:field="*{pseudo}" class="input1-detail-utilisateur" required>
+
+                    <label for="nom" class="label2-detail-uitilisateur">Nom </label>
+                    <input type="text" name="nom" id="nom" th:field="*{nom}" class="input2-detail-utilisateur" required>
+
+                    <label for="prenom" class="label3-detail-uitilisateur">Prénom </label>
+                    <input type="text" name="prenom" id="prenom" th:field="*{prenom}" class="input3-detail-utilisateur" required>
+
+                    <label for="nom" class="label4-detail-uitilisateur">Email </label>
+                    <input type="text" name="email" id="email" th:field="*{email}" class="input4-detail-utilisateur" required>
+
+                    <label for="tel" class="label5-detail-uitilisateur">Téléphone </label>
+                    <input type="text" name="tel" id="tel" th:field="*{telephone}" class="input5-detail-utilisateur" required>
+
+                    <label for="rue" class="label6-detail-uitilisateur">Rue </label>
+                    <input type="text" name="rue" id="rue" th:field="*{rue}" class="input6-detail-utilisateur" required>
+
+                    <label for="codePostal" class="label7-detail-uitilisateur">Code postal </label>
+                    <input type="text" name="codePostal" id="codePostal" th:field="*{codePostal}" class="input7-detail-utilisateur" required>
+
+                    <label for="ville" class="label8-detail-uitilisateur">Ville </label>
+                    <input type="text" name="ville" id="ville" th:field="*{ville}" class="input8-detail-utilisateur" required>
+
+            </form>
+    </section>
