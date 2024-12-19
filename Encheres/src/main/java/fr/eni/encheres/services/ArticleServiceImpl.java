@@ -22,8 +22,8 @@ public class ArticleServiceImpl implements ArticleService {
         this.articleRepository = articleRepository;
     }
     @Override
-    public void add(Article entity) {
-
+    public void add(Article article) throws DatabaseException {
+        articleRepository.add(article);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void update(Article entity) {
+    public void update(Article article) {
 
     }
 

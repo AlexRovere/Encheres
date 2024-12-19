@@ -10,13 +10,13 @@
     </div>
     <div class="overflow-scroll mb-20 ">
         <input type="hidden" th:field="*{noArticle}">
-        <!--        <input type="hidden" th:name="utilisateur" th:value="*{utilisateur.noUtilisateur}" >-->
+        <input type="hidden" name="noUtilisateur" th:value="*{utilisateur.noUtilisateur}" >
 
         <div class="p-5 flex flex-col gap-5">
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Nom de l'article</label>
-                <input type="text" th:field="*{nomArticle}" id="nomArticle"
+                <input required type="text" th:field="*{nomArticle}" id="nomArticle"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('nomArticle')}" th:text="${erreur}"
@@ -27,7 +27,7 @@
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Description</label>
-                <textarea type="text" th:field="*{description}"
+                <textarea required type="text" th:field="*{description}"
                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </textarea>
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
@@ -73,11 +73,10 @@
             </div>
 
             <div class="flex gap-5">
-
                 <div class="flex-grow">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Début de
                         l'enchère</label>
-                    <input type="date" th:field="*{dateDebutEncheres}" id="dateDebutEncheres"
+                    <input required type="date" name="dateDebutEncheres" th:value="${@toolsService.formatDateToString(article.dateDebutEncheres)}" id="dateDebutEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('dateDebutEncheres')}" th:text="${erreur}"
@@ -88,7 +87,7 @@
                 <div class="flex-grow">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">*Fin de
                         l'enchère</label>
-                    <input type="date" th:field="*{dateFinEncheres}" id="dateFinEncheres"
+                    <input required type="date" name="dateFinEncheres" th:value="${@toolsService.formatDateToString(article.dateFinEncheres)}" id="dateFinEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('dateFinEncheres')}" th:text="${erreur}"
@@ -100,7 +99,7 @@
             <h1>Retrait</h1>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ville</label>
-                <input type="text" id="ville" name="ville" th:value="*{utilisateur.ville}"
+                <input required type="text" id="ville" name="ville" th:value="*{utilisateur.ville}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('utilisateur.ville')}" th:text="${erreur}"
@@ -109,7 +108,7 @@
             </div>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rue</label>
-                <input type="text" id="rue" name="rue" th:value="*{utilisateur.rue}"
+                <input required type="text" id="rue" name="rue" th:value="*{utilisateur.rue}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('utilisateur.rue')}" th:text="${erreur}"
@@ -118,7 +117,7 @@
             </div>
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Code postal</label>
-                <input type="text" id="codePostal" name="codePostal" th:value="*{utilisateur.codePostal}"
+                <input required type="text" id="codePostal" name="codePostal" th:value="*{utilisateur.codePostal}"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                     <span th:each="erreur: ${#fields.errors('utilisateur.codePostal')}" th:text="${erreur}"

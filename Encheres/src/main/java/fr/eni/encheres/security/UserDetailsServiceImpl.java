@@ -18,22 +18,25 @@ import java.util.Optional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UtilisateurRepository utilisateurRepository;
+
     public UserDetailsServiceImpl(UtilisateurRepository utilisateurRepository) {
         this.utilisateurRepository = utilisateurRepository;
     }
+
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         Optional<Utilisateur> userOptional = utilisateurRepository.getByLogin(login);
-        if(userOptional.isPresent()) {
+        if (userOptional.isPresent()) {
             Utilisateur user = userOptional.get();
             SimpleGrantedAuthority role = null;
-            if(user.isAdministrateur()) {
+            if (user.isAdministrateur()) {
                 role = new SimpleGrantedAuthority("ROLE_ADMIN");
             } else {
                 role = new SimpleGrantedAuthority("ROLE_USER");
             }
             List<GrantedAuthority> roles = List.of(role);
 
+//return new CustomUserDetails(user.getNoUtilisateur(), user.getEmail(), user.getMotDePasse(), roles);
             return User.builder().username(user.getEmail()).password(user.getMotDePasse()).authorities(roles).build();
         }
 

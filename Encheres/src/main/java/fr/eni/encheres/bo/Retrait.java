@@ -4,9 +4,14 @@ public class Retrait {
     private String rue;
     private String codePostal;
     private String ville;
-    private boolean effectue;
 
     public Retrait() {
+    }
+
+    public Retrait(String rue, String codePostal, String ville) {
+        this.rue = rue;
+        this.codePostal = codePostal;
+        this.ville = ville;
     }
 
     @Override
@@ -15,7 +20,6 @@ public class Retrait {
                 "rue='" + rue + '\'' +
                 ", codePostal='" + codePostal + '\'' +
                 ", ville='" + ville + '\'' +
-                ", effectue=" + effectue +
                 '}';
     }
 
@@ -43,11 +47,4 @@ public class Retrait {
         this.ville = ville;
     }
 
-    public boolean isEffectue() {
-        return effectue;
-    }
-
-    public void setEffectue(boolean effectue) {
-        this.effectue = effectue;
-    }
 }

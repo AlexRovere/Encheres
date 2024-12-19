@@ -1,18 +1,30 @@
 package fr.eni.encheres.bo;
 
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Range;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Article {
     private int noArticle;
+    @NotBlank
+    @Size(min=3, max= 50)
     private String nomArticle;
+    @NotBlank
+    @Size(min=3, max = 300)
     private String description;
+    @NotNull
     private LocalDate dateDebutEncheres;
+    @NotNull
     private LocalDate dateFinEncheres;
+    @PositiveOrZero
     private int prixInitial;
+    @PositiveOrZero
     private int prixVente;
     private int etatVente;
+    @NotNull
     private boolean retraitEffectue;
     private Retrait retrait;
     private Categorie categorie;

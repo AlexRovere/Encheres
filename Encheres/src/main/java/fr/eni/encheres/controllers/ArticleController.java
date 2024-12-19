@@ -2,8 +2,10 @@ package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Categorie;
+import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.exceptions.DatabaseException;
+import fr.eni.encheres.security.CustomUserDetails;
 import fr.eni.encheres.services.ArticleServiceImpl;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
@@ -11,16 +13,20 @@ import fr.eni.encheres.services.interf.UtilisateurService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,27 +69,51 @@ public class ArticleController {
 
     @GetMapping("/articles/ajouter")
     public String getAjouterArticle(Model model, Principal principal) {
+        Article article = new Article();
+        article.setDateDebutEncheres(LocalDate.now());
+        article.setDateFinEncheres(LocalDate.now().plusDays(1));
+        // Si le modele existe et que c'est bien un Article (retour de post pour la verification du form)
+        if(model.containsAttribute("article") && model.getAttribute("article") instanceof Article &&  model.getAttribute("article") != null) {
+            article = (Article) model.getAttribute("article");
+        }
        Optional<Utilisateur> utilisateurOptional = utilisateurService.getByLogin(principal.getName());
        if(utilisateurOptional.isEmpty()) {
            return "redirect:/articles";
        }
-        Article article = new Article();
+
         article.setUtilisateur(utilisateurOptional.get());
+
         model.addAttribute("body", "pages/articles/enregistrerArticle");
         model.addAttribute("article", article);
         return "index";
     }
 
     @PostMapping("/articles/ajouter")
-    public String postAjouterArticle(Model model, @Valid @ModelAttribute("article") Article article, BindingResult result, RedirectAttributes redirectAttr) {
-        System.out.println(article);
+    public String postAjouterArticle(Model model, @Valid @ModelAttribute("article") Article article, BindingResult result, @RequestParam("noUtilisateur") int noUtilisateur,  RedirectAttributes redirectAttr,
+                                     @RequestParam("ville") String ville, @RequestParam("rue") String rue, @RequestParam("codePostal") String codePostal) {
+        Optional<Utilisateur> utilisateurOptional;
+        try {
+            utilisateurOptional = utilisateurService.getById(noUtilisateur);
+        } catch (DatabaseException e) {
+            throw new RuntimeException(e);
+        }
+        if(utilisateurOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+        Retrait retrait = new Retrait(rue, codePostal, ville);
+        article.setRetrait(retrait);
+        article.setUtilisateur(utilisateurOptional.get());
         if(result.hasErrors()){
             redirectAttr.addFlashAttribute( "org.springframework.validation.BindingResult.article", result);
             redirectAttr.addFlashAttribute("article", article);
-            return "redirect:/article/ajouter/";
+            return "redirect:/articles/ajouter";
         }
-        model.addAttribute("body", "pages/articles/listeArticle");
-        return "index";
+        try {
+            articleService.add(article);
+        } catch (DatabaseException e) {
+            logger.debug(e.getMessage() + e.getCause());
+        }
+        return "redirect:/articles";
     }
 
 }

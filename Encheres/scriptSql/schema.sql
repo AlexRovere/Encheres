@@ -22,7 +22,7 @@ CREATE TABLE encheres
 
 CREATE TABLE retraits
 (
-    no_article  INTEGER primary key generated always as identity,
+    no_article  INTEGER primary key,
     rue         VARCHAR(30) NOT NULL,
     code_postal VARCHAR(15) NOT NULL,
     ville       VARCHAR(30) NOT NULL

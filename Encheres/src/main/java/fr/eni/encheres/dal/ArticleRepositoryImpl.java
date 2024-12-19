@@ -13,7 +13,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,8 +39,39 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     @Override
-    public void add(Article entity) {
+    @Transactional
+    public void add(Article article) throws DatabaseException {
+        String sql = "insert into articles (nom_article, description, date_debut_encheres, date_fin_encheres, " +
+        "prix_initial, prix_vente, retrait_effectue, no_utilisateur, no_categorie) values (:nomArticle, :description," +
+                ":dateDebutEncheres, :dateFinEncheres, :prixInitial, :prixVente, :retraitEffectue, :noUtilisateur, :noCategorie)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("nomArticle", article.getNomArticle());
+        params.addValue("description", article.getDescription());
+        params.addValue("dateDebutEncheres", article.getDateDebutEncheres());
+        params.addValue("dateFinEncheres", article.getDateFinEncheres());
+        params.addValue("prixInitial", article.getPrixInitial());
+        params.addValue("prixVente", article.getPrixVente());
+        params.addValue("retraitEffectue", article.isRetraitEffectue());
+        params.addValue("noUtilisateur", article.getUtilisateur().getNoUtilisateur());
+        params.addValue("noCategorie", article.getCategorie().getNoCategorie());
 
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            namedParameterJdbcTemplate.update(sql, params, keyHolder);
+
+         int noArticle = (int) keyHolder.getKeys().get("no_article");
+         String sqlRetrait = "insert into retraits (no_article, rue, code_postal, ville) values (:noArticle, :rue, :codePostal, :ville)";
+         MapSqlParameterSource paramsRetrait = new MapSqlParameterSource();
+         paramsRetrait.addValue("noArticle", noArticle);
+         paramsRetrait.addValue("rue", article.getRetrait().getRue());
+         paramsRetrait.addValue("codePostal", article.getRetrait().getCodePostal());
+         paramsRetrait.addValue("ville", article.getRetrait().getVille());
+         namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
+        } catch (DataAccessException e) {
+            logger.error("Impossible de créer l'article : {}", article, e);
+            throw new DatabaseException("Impossible de créer l'article : " + article.getNoArticle(), e);
+        }
     }
 
     @Override
@@ -77,7 +111,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     @Override
-    public void update(Article entity) {
+    public void update(Article article) {
 
     }
 
