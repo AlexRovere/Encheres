@@ -2,7 +2,6 @@ package fr.eni.encheres.services;
 
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.dal.interf.ArticleRepository;
-import fr.eni.encheres.exceptions.DatabaseException;
 import fr.eni.encheres.services.interf.ArticleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +21,12 @@ public class ArticleServiceImpl implements ArticleService {
         this.articleRepository = articleRepository;
     }
     @Override
-    public void add(Article article) throws DatabaseException {
+    public void add(Article article) {
         articleRepository.add(article);
     }
 
     @Override
-    public List<Article> getAll() throws DatabaseException {
+    public List<Article> getAll() {
         return articleRepository.getAll();
     }
 

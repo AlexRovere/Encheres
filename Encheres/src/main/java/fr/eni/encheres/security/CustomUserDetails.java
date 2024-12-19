@@ -8,24 +8,34 @@ import java.util.List;
 
 public class CustomUserDetails  implements UserDetails {
 
-    private int id;
+    private int noUtilisateur;
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(int id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
+    public CustomUserDetails(int noUtilisateur, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.noUtilisateur = noUtilisateur;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
     }
 
-    public int getId() {
-        return id;
+    @Override
+    public String toString() {
+        return "CustomUserDetails{" +
+                "noUtilisateur=" + noUtilisateur +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", authorities=" + authorities +
+                '}';
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getNoUtilisateur() {
+        return noUtilisateur;
+    }
+
+    public void setNoUtilisateur(int noUtilisateur) {
+        this.noUtilisateur = noUtilisateur;
     }
 
     @Override

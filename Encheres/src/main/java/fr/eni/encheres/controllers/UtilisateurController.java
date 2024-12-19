@@ -1,7 +1,6 @@
 package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Utilisateur;
-import fr.eni.encheres.exceptions.DatabaseException;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import java.util.Optional;
 
 @Controller
@@ -33,18 +33,13 @@ public class UtilisateurController {
 
     @GetMapping("/utilisateurs/detail/{noUtilisateur}")
     public String detailUtilisateur(Model model, @PathVariable int noUtilisateur) {
-        try {
-            Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(noUtilisateur);
-            if (utilisateurOptional.isEmpty()) {
-                return "redirect:/articles";
-            }
-            Utilisateur utilisateur = utilisateurOptional.get();
-            model.addAttribute("utilisateur", utilisateur);
-            model.addAttribute("body", "pages/utilisateurs/detailUtilisateur");
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
+        Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(noUtilisateur);
+        if (utilisateurOptional.isEmpty()) {
             return "redirect:/articles";
         }
+        Utilisateur utilisateur = utilisateurOptional.get();
+        model.addAttribute("utilisateur", utilisateur);
+        model.addAttribute("body", "pages/utilisateurs/detailUtilisateur");
         return "index";
     }
 
@@ -59,36 +54,27 @@ public class UtilisateurController {
     @PostMapping("/utilisateurs/ajouter")
     public String enregistrerUtilisateur(Utilisateur utilisateur) {
         utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
-        try {
-            utilisateurService.add(utilisateur);
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
-        }
+        utilisateurService.add(utilisateur);
         return "redirect:/articles";
     }
 
     @GetMapping("/utilisateurs/modifier/{noUtilisateur}")
     // Quand l'utilisateur click sur modifier ça get pour rediriger vers enregistrerUtilisateur
     public String afficherFormModifierUtilisateur(@PathVariable int noUtilisateur, Model model) {
-        try {
-            Optional<Utilisateur> utilisateur = utilisateurService.getById(noUtilisateur);
-            model.addAttribute("utilisateur", utilisateur);
-            model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
-        } catch (DatabaseException e){
-            logger.debug(e.getMessage() + e.getCause());
+        Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(noUtilisateur);
+        if (utilisateurOptional.isEmpty()) {
+            return "redirect:/articles";
         }
+        model.addAttribute("utilisateur", utilisateurOptional.get());
+        model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         return "index";
     }
 
     // Modification sur enregistrerUtilisateur
     @PostMapping("/utilisateurs/modifier")
     public String modifierUtilisateur(Model model, Utilisateur utilisateur) {
-        try {
             utilisateurService.update(utilisateur);
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
-        }
-        return "redirect:/utilisateurs/detail/{noUtilisateur}";
+        return "redirect:/utilisateurs/detail/ " + utilisateur.getNoUtilisateur();
     }
 
 }

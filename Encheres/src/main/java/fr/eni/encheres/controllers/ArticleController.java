@@ -1,20 +1,14 @@
 package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Article;
-import fr.eni.encheres.bo.Categorie;
 import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
-import fr.eni.encheres.exceptions.DatabaseException;
-import fr.eni.encheres.security.CustomUserDetails;
-import fr.eni.encheres.services.ArticleServiceImpl;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,9 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -43,26 +34,13 @@ public class ArticleController {
     public ArticleController(ArticleService articleService, CategorieService categorieService, UtilisateurService utilisateurService) {
         this.articleService = articleService;
         this.categorieService = categorieService;
-        this.utilisateurService =utilisateurService;
+        this.utilisateurService = utilisateurService;
     }
 
     @GetMapping("/articles")
     public String getArticles(Model model) {
-        List<Article> articles = new ArrayList<>();
-        try {
-            articles = articleService.getAll();
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
-        }
-
-        List<Categorie> categories = new ArrayList<>();
-        try {
-            categories = categorieService.getAll();
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
-        }
-        model.addAttribute("categories", categories);
-        model.addAttribute("articles", articles);
+        model.addAttribute("categories", categorieService.getAll());
+        model.addAttribute("articles", articleService.getAll());
         model.addAttribute("body", "pages/articles/listeArticle");
         return "index";
     }
@@ -92,11 +70,7 @@ public class ArticleController {
     public String postAjouterArticle(Model model, @Valid @ModelAttribute("article") Article article, BindingResult result, @RequestParam("noUtilisateur") int noUtilisateur,  RedirectAttributes redirectAttr,
                                      @RequestParam("ville") String ville, @RequestParam("rue") String rue, @RequestParam("codePostal") String codePostal) {
         Optional<Utilisateur> utilisateurOptional;
-        try {
-            utilisateurOptional = utilisateurService.getById(noUtilisateur);
-        } catch (DatabaseException e) {
-            throw new RuntimeException(e);
-        }
+        utilisateurOptional = utilisateurService.getById(noUtilisateur);
         if(utilisateurOptional.isEmpty()) {
             return "redirect:/articles";
         }
@@ -108,11 +82,7 @@ public class ArticleController {
             redirectAttr.addFlashAttribute("article", article);
             return "redirect:/articles/ajouter";
         }
-        try {
-            articleService.add(article);
-        } catch (DatabaseException e) {
-            logger.debug(e.getMessage() + e.getCause());
-        }
+        articleService.add(article);
         return "redirect:/articles";
     }
 

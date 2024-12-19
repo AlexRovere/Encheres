@@ -4,11 +4,9 @@ import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Categorie;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.ArticleRepository;
-import fr.eni.encheres.exceptions.DatabaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +37,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
     @Override
     @Transactional
-    public void add(Article article) throws DatabaseException {
+    public void add(Article article) {
         String sql = "insert into articles (nom_article, description, date_debut_encheres, date_fin_encheres, " +
         "prix_initial, prix_vente, retrait_effectue, no_utilisateur, no_categorie) values (:nomArticle, :description," +
                 ":dateDebutEncheres, :dateFinEncheres, :prixInitial, :prixVente, :retraitEffectue, :noUtilisateur, :noCategorie)";
@@ -70,30 +67,28 @@ public class ArticleRepositoryImpl implements ArticleRepository {
          namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
         } catch (DataAccessException e) {
             logger.error("Impossible de créer l'article : {}", article, e);
-            throw new DatabaseException("Impossible de créer l'article : " + article.getNoArticle(), e);
         }
     }
 
     @Override
-    public List<Article> getAll() throws DatabaseException {
+    public List<Article> getAll() {
         String sql = "select no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
       "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle from articles a " +
        "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
         "left join categories c on a.no_categorie = c.no_categorie";
 
-        List<Article> articles;
+        List<Article> articles = new ArrayList<>();
         try {
             articles =  namedParameterJdbcTemplate.query(sql, new ArticleRowMapper());
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer la liste des articles", e);
-            throw new DatabaseException("Impossible de récupérer la liste des articles", e);
         }
 
         return articles;
     }
 
     @Override
-    public Optional<Article> getById(int noArticle) throws DatabaseException{
+    public Optional<Article> getById(int noArticle){
         String sql = "select no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
                 "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
@@ -105,7 +100,6 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             art = namedParameterJdbcTemplate.queryForObject(sql, params, new ArticleRowMapper());
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer l'article id : {}", noArticle , e);
-            throw new DatabaseException("Impossible de récupérer l'artcile id : " + noArticle, e);
         }
         return Optional.ofNullable(art);
     }
