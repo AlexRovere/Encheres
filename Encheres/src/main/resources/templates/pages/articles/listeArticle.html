@@ -24,7 +24,8 @@
             Recherche
         </button>
     </div>
-
+[[${categories}]]
+    [[${articles}]]
     <div>
 
     </div>
@@ -33,7 +34,7 @@
         <ul class="max-w-xl mx-auto">
             <img src="images/logo.jpg" class="h-10">
             <li><a href="#" class="underline" th:text="${article.nomArticle}">Nom de l'annonce</a></li>
-            <li>Prix : <span th:text="${article.miseAPrix}"></span></li>
+            <li>Prix : <span th:text="${article.prixInitial}"></span></li>
             <li>Fin d'enchère : <span th:text="${article.dateFinEncheres}"></span></li>
             <li>Vendeur : <span th:text="${article.utilisateur.pseudo}"></span></li>
         </ul>

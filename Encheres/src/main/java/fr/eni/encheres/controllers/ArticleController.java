@@ -3,10 +3,14 @@ package fr.eni.encheres.controllers;
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Categorie;
 import fr.eni.encheres.bo.Utilisateur;
+import fr.eni.encheres.exceptions.DatabaseException;
+import fr.eni.encheres.services.ArticleServiceImpl;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +27,9 @@ import java.util.Optional;
 
 @Controller
 public class ArticleController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
+
     private final ArticleService articleService;
     private final CategorieService categorieService;
     private final UtilisateurService utilisateurService;
@@ -36,16 +43,19 @@ public class ArticleController {
     @GetMapping("/articles")
     public String getArticles(Model model) {
         List<Article> articles = new ArrayList<>();
-        Article table = new Article();
-        Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setPseudo("Boby66");
-        table.setNomArticle("table");
-        table.setPrixVente(100);
-        table.setNoArticle(1);
-        table.setDateFinEncheres(LocalDate.of(2024, 12, 30));
-        table.setUtilisateur(utilisateur);
-        System.out.println(table);
-        articles.add(table);
+        try {
+            articles = articleService.getAll();
+        } catch (DatabaseException e) {
+            logger.debug(e.getMessage() + e.getCause());
+        }
+
+        List<Categorie> categories = new ArrayList<>();
+        try {
+            categories = categorieService.getAll();
+        } catch (DatabaseException e) {
+            logger.debug(e.getMessage() + e.getCause());
+        }
+        model.addAttribute("categories", categories);
         model.addAttribute("articles", articles);
         model.addAttribute("body", "pages/articles/listeArticle");
         return "index";
