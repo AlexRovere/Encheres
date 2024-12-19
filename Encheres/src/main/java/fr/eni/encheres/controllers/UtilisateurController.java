@@ -11,15 +11,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
 import java.util.Optional;
-
 
 @Controller
 public class UtilisateurController {
 
     private static final Logger logger = LoggerFactory.getLogger(UtilisateurController.class);
-
     private final UtilisateurService utilisateurService;
     private final PasswordEncoder passwordEncoder;
 
@@ -37,7 +34,11 @@ public class UtilisateurController {
     @GetMapping("/utilisateurs/detail/{noUtilisateur}")
     public String detailUtilisateur(Model model, @PathVariable int noUtilisateur) {
         try {
-            Optional<Utilisateur> utilisateur = utilisateurService.getById(noUtilisateur);
+            Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(noUtilisateur);
+            if (utilisateurOptional.isEmpty()) {
+                return "redirect:/articles";
+            }
+            Utilisateur utilisateur = utilisateurOptional.get();
             model.addAttribute("utilisateur", utilisateur);
             model.addAttribute("body", "pages/utilisateurs/detailUtilisateur");
         } catch (DatabaseException e) {
@@ -65,5 +66,30 @@ public class UtilisateurController {
         }
         return "redirect:/articles";
     }
+
+    @GetMapping("/utilisateurs/modifier/{noUtilisateur}")
+    // Quand l'utilisateur click sur modifier ça get pour rediriger vers enregistrerUtilisateur
+    public String afficherFormModifierUtilisateur(@PathVariable int noUtilisateur, Model model) {
+        try {
+            Optional<Utilisateur> utilisateur = utilisateurService.getById(noUtilisateur);
+            model.addAttribute("utilisateur", utilisateur);
+            model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
+        } catch (DatabaseException e){
+            logger.debug(e.getMessage() + e.getCause());
+        }
+        return "index";
+    }
+
+    // Modification sur enregistrerUtilisateur
+    @PostMapping("/utilisateurs/modifier")
+    public String modifierUtilisateur(Model model, Utilisateur utilisateur) {
+        try {
+            utilisateurService.update(utilisateur);
+        } catch (DatabaseException e) {
+            logger.debug(e.getMessage() + e.getCause());
+        }
+        return "redirect:/utilisateurs/detail/{noUtilisateur}";
+    }
+
 }
 

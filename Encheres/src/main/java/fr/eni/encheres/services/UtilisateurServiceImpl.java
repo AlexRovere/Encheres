@@ -54,8 +54,8 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     // Update
     @Override
-    public void update(Utilisateur entity) {
-
+    public void update(Utilisateur utilisateur) throws DatabaseException {
+        utilisateurRepository.update(utilisateur);
     }
 
     // Delete
