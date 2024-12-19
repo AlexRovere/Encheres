@@ -63,8 +63,10 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
     // Update
     @Override
-    public void update(Utilisateur entity) {
-
+    public void update(Utilisateur utilisateur) {
+        String sql = "UPDATE utilisateurs SET pseudo = :pseudo, nom = :nom, prenom = :prenom, email = :email, telephone = :telephone, rue = :rue, code_postal = :codePostal, ville = :ville, mot_de_passe = :motDePasse" +
+                " WHERE no_utilisateur = :noUtilisateur " ;
+        namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(utilisateur));
     }
 
     // Delete

@@ -1,5 +1,5 @@
-<form th:action="@{/utilisateurs/ajouter}" method="post"  th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
-        <h1 class="text-3xl font-bold pb-8 text-gray-900 text-center">Créer votre compte</h1>
+<form th:action="${utilisateur.noUtilisateur} ? '/utilisateurs/modifier' : '/utilisateurs/ajouter'" method="post"  th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
+        <h1 class="text-3xl font-bold pb-8 text-gray-900 text-center"><span th:if="">Créer votre compte</h1>
         <div class="overflow-scroll">
             <div class="p-5 flex-col gap-5">
         <div class="mb-5">
