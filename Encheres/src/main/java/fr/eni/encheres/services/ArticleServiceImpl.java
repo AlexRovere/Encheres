@@ -42,6 +42,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void delete(int id) {
+    }
 
+    public List<Article> getAllWithFilters(String filter) {
+        return articleRepository.getAll();
     }
 }

@@ -37,7 +37,7 @@ public class ArticleController {
     }
 
     @GetMapping("/articles")
-    public String getArticles(Model model) {
+    public String getArticles(Model model, @PathVariable(value = "filter", required = false) String filter) {
         model.addAttribute("categories", categorieService.getAll());
         model.addAttribute("articles", articleService.getAll());
         model.addAttribute("body", "pages/articles/listeArticle");
@@ -98,5 +98,23 @@ public class ArticleController {
         articleService.add(article);
         return "redirect:/articles";
     }
+
+    @GetMapping("/articles/modifier/{noArticle}")
+    public String getAjouterArticle(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int id) {
+        Optional<Article> articleOptional = articleService.getById(id);
+        if(articleOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+
+        Article article = articleOptional.get();
+
+        Optional<Article> articleFromModel = Optional.ofNullable((Article) model.getAttribute("article"));
+        article = articleFromModel.orElse(article);
+
+        model.addAttribute("body", "pages/articles/enregistrerArticle");
+        model.addAttribute("article", article);
+        return "index";
+    }
+
 
 }
