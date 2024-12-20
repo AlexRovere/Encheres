@@ -1,7 +1,5 @@
 <form class="container h-full max-w-lg mx-auto flex flex-col"
       th:action="${noArticle} ? '/articles/modifier' : '/articles/ajouter'" method="post" th:object="${article}">
-    [[${article}]]
-
     <h1 class="mx-auto text-center text-md my-5">
         <span th:text="${noArticle} ? 'Modifier' : 'Créer'"></span> un article
     </h1>
@@ -45,10 +43,6 @@
                             th:each="cat : ${@categorieServiceImpl.getAll()}" th:value="${cat.noCategorie}"
                             th:text="${cat.libelle + ' ' + cat.noCategorie}"></option>
                 </select>
-                <!--                <p class="mt-2 text-sm text-red-600 dark:text-red-500">-->
-                <!--                    <span th:each="erreur: ${#fields.errors('categorie')}" th:text="${erreur}"-->
-                <!--                          class="font-medium"></span>-->
-                <!--                </p>-->
             </div>
 
             <div>
@@ -138,18 +132,3 @@
         </button>
     </div>
 </form>
-
-<!--<div class="mx-auto max-w-md h-full flex flex-col">-->
-
-<!--<div>-->
-<!--    header-->
-<!--</div>-->
-<!--<div class="overflow-scroll">-->
-<!--<div th:each="i : ${#numbers.sequence(0, 50)}">-->
-<!--    contenu-->
-<!--</div>-->
-<!--</div>-->
-<!--<div>-->
-<!--    footer form-->
-<!--</div>-->
-<!--</div>-->

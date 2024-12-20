@@ -1,8 +1,7 @@
 <div th:object="${articles}">
     <div>
-        <h1 class="font-bold text-2xl">Liste des enchères</h1>
+        <h1 class="font-bold text-2xl">Liste des articles</h1>
     </div>
-
     <div id="filtreDeco">
         <input type="text" id="myInput" placeholder="Le nom de l'article contient">
         <form class="max-w-sm mx-auto">
@@ -10,14 +9,12 @@
                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Catégorie</label>
             <select id="categorie" name="categorie"
                     class="form-control bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-
                 <option value="">Toutes</option>
                 <option
                         th:each="categorie : ${categories}"
                         th:value="${categorie.libelle}"
                         th:text="${categorie.libelle} +':'+ ${categorie.noCategorie}">
                 </option>
-
             </select>
         </form>
         <button type="button"
@@ -109,19 +106,28 @@
 
     </div>
 
-    <div class="flex flex-wrap">
-        <div class="w-1/2 px-5" th:each="article : ${articles}">
-            <ul class="max-w-xl mx-auto flex gap-5 items-center">
-                <img src="images/logo.jpg" class="h-10">
-                <div>
-                <li sec:authorize="isAuthenticated()"><a href="#" class="underline" th:text="${article.nomArticle}">Nom
-                    de l'annonce</a></li>
-                <li>Prix : <span th:text="${article.prixInitial}"></span></li>
-                <li>Fin d'enchère : <span th:text="${article.dateFinEncheres}"></span></li>
-                <li>Vendeur : <a href="#" th:text="${article.utilisateur.pseudo}"></a></li>
-                </div>
-            </ul>
+    <div class="flex flex-wrap pt-5">
+        <div class="w-1/2 pb-5" th:each="article : ${articles}">
+            <a th:href="@{articles/detail/{noArticle}(noArticle=${article.noArticle})}">
+
+            <div class="gap-5 mx-auto flex flex-row items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+                     src="images/logo.jpg">
+                <ul>
+                    <li class="underline" th:text="${article.nomArticle}">Nom
+                        de l'annonce
+                    </li>
+                    <li>Prix : <span th:text="${article.prixInitial}"></span></li>
+                    <li>Fin d'enchère : <span th:text="${article.dateFinEncheres}"></span></li>
+                    <li>Vendeur : <span class="underline"  th:text="${article.utilisateur.pseudo}"></span> <a
+                            sec:authorize="isAuthenticated()"
+                            th:href="@{utilisateurs/detail/{noUtilisateur}(noUtilisateur=${article.utilisateur.noUtilisateur})}"></a>
+                    </li>
+                </ul>
         </div>
+            </a>
+
     </div>
+</div>
 </div>
 </div>

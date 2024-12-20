@@ -32,7 +32,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Optional<Article> getById(int id) {
-        return Optional.empty();
+        return articleRepository.getById(id);
     }
 
     @Override

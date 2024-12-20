@@ -2,6 +2,7 @@ package fr.eni.encheres.dal;
 
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Categorie;
+import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.ArticleRepository;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Transactional
     public void add(Article article) {
         String sql = "insert into articles (nom_article, description, date_debut_encheres, date_fin_encheres, " +
-        "prix_initial, prix_vente, retrait_effectue, no_utilisateur, no_categorie) values (:nomArticle, :description," +
+                "prix_initial, prix_vente, retrait_effectue, no_utilisateur, no_categorie) values (:nomArticle, :description," +
                 ":dateDebutEncheres, :dateFinEncheres, :prixInitial, :prixVente, :retraitEffectue, :noUtilisateur, :noCategorie)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("nomArticle", article.getNomArticle());
@@ -57,14 +58,14 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
             namedParameterJdbcTemplate.update(sql, params, keyHolder);
 
-         int noArticle = (int) keyHolder.getKeys().get("no_article");
-         String sqlRetrait = "insert into retraits (no_article, rue, code_postal, ville) values (:noArticle, :rue, :codePostal, :ville)";
-         MapSqlParameterSource paramsRetrait = new MapSqlParameterSource();
-         paramsRetrait.addValue("noArticle", noArticle);
-         paramsRetrait.addValue("rue", article.getRetrait().getRue());
-         paramsRetrait.addValue("codePostal", article.getRetrait().getCodePostal());
-         paramsRetrait.addValue("ville", article.getRetrait().getVille());
-         namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
+            int noArticle = (int) keyHolder.getKeys().get("no_article");
+            String sqlRetrait = "insert into retraits (no_article, rue, code_postal, ville) values (:noArticle, :rue, :codePostal, :ville)";
+            MapSqlParameterSource paramsRetrait = new MapSqlParameterSource();
+            paramsRetrait.addValue("noArticle", noArticle);
+            paramsRetrait.addValue("rue", article.getRetrait().getRue());
+            paramsRetrait.addValue("codePostal", article.getRetrait().getCodePostal());
+            paramsRetrait.addValue("ville", article.getRetrait().getVille());
+            namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
         } catch (DataAccessException e) {
             logger.error("Impossible de créer l'article : {}", article, e);
         }
@@ -72,14 +73,15 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
     @Override
     public List<Article> getAll() {
-        String sql = "select no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
-      "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle from articles a " +
-       "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
-        "left join categories c on a.no_categorie = c.no_categorie";
+        String sql = "select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
+                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle,  r.rue, r.code_postal, r.ville from articles a " +
+                "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
+                "left join retraits r on a.no_article = r.no_article " +
+                "left join categories c on a.no_categorie = c.no_categorie";
 
         List<Article> articles = new ArrayList<>();
         try {
-            articles =  namedParameterJdbcTemplate.query(sql, new ArticleRowMapper());
+            articles = namedParameterJdbcTemplate.query(sql, new ArticleRowMapper());
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer la liste des articles", e);
         }
@@ -88,18 +90,19 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     @Override
-    public Optional<Article> getById(int noArticle){
-        String sql = "select no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
-                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle from articles a " +
+    public Optional<Article> getById(int noArticle) {
+        String sql = "select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
+                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle, r.rue, r.code_postal, r.ville from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
-                "left join categories c on a.no_categorie = c.no_categorie where no_article = :no_article";
+                "left join retraits r on a.no_article = r.no_article " +
+                "left join categories c on a.no_categorie = c.no_categorie where a.no_article = :no_article";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("no_article", noArticle);
         Article art = null;
         try {
             art = namedParameterJdbcTemplate.queryForObject(sql, params, new ArticleRowMapper());
         } catch (DataAccessException e) {
-            logger.error("Impossible de récupérer l'article id : {}", noArticle , e);
+            logger.error("Impossible de récupérer l'article id : {}", noArticle, e);
         }
         return Optional.ofNullable(art);
     }
@@ -140,6 +143,13 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             categorie.setNoCategorie(rs.getInt("no_categorie"));
             categorie.setLibelle(rs.getString("libelle"));
             article.setCategorie(categorie);
+
+            // Créer le retrait associé
+            Retrait retrait = new Retrait();
+            retrait.setCodePostal(rs.getString("code_postal"));
+            retrait.setRue(rs.getString("rue"));
+            retrait.setVille(rs.getString("ville"));
+            article.setRetrait(retrait);
 
             return article;
         }

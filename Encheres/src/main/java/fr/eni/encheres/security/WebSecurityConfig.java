@@ -32,7 +32,7 @@ public class WebSecurityConfig  {
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/articles")
+                        .defaultSuccessUrl("/articles", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
