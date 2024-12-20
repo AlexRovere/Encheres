@@ -73,8 +73,14 @@ public class UtilisateurController {
     // Modification sur enregistrerUtilisateur
     @PostMapping("/utilisateurs/modifier")
     public String modifierUtilisateur(Model model, Utilisateur utilisateur) {
-            utilisateurService.update(utilisateur);
-        return "redirect:/utilisateurs/detail/ " + utilisateur.getNoUtilisateur();
+        Optional<Utilisateur> utilisateurOpt = utilisateurService.getById(utilisateur.getNoUtilisateur());
+        if (utilisateurOpt.isEmpty()) {
+            return "redirect:/articles";
+        }
+        model.addAttribute("utilisateur", utilisateurOpt.get());
+        model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
+        utilisateurService.update(utilisateur);
+        return "redirect:/utilisateurs/detail/" + utilisateur.getNoUtilisateur();
     }
 
 }

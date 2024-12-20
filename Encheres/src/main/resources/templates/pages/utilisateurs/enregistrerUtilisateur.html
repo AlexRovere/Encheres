@@ -1,6 +1,10 @@
-<form th:action="${utilisateur.noUtilisateur} ? '/utilisateurs/modifier' : '/utilisateurs/ajouter'" method="post"  th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
-        <h1 class="text-3xl font-bold pb-8 text-gray-900 text-center"><span th:if="">Créer votre compte</h1>
-        <div class="overflow-scroll">
+<!--<form th:action="${noUtilisateur ? '/utilisateurs/modifier' : '/utilisateurs/ajouter'}" method="post"  th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">-->
+
+    <h1 th:text="${utilisateur.noUtilisateur} ? 'Mofifier votre compte' : 'Créer votre compte'" class="text-3xl font-bold pb-8 text-gray-900 text-center">
+    </h1>
+<form   th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
+    [[${noUtilisateur}]]
+    <div class="overflow-scroll">
             <div class="p-5 flex-col gap-5">
         <div class="mb-5">
             <label for="pseudo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pseudo</label>
@@ -48,9 +52,19 @@
         </div>
             </div>
         </div>
-        <button type="submit"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4
-                focus:outline-none focus:ring-blue-300 font-medium rounded-lg
-                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
-                dark:focus:ring-blue-800">Enregistrer</button>
+<!--    <span th:if="${!noUtilisateur}">-->
+<!--        <button type="submit"-->
+<!--                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4-->
+<!--                focus:outline-none focus:ring-blue-300 font-medium rounded-lg-->
+<!--                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700-->
+<!--                dark:focus:ring-blue-800">Enregistrer</button>-->
+<!--    </span>-->
+
+<!--    <span th:if="${noUtilisateur}">-->
+<!--        <button type="submit"-->
+<!--                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4-->
+<!--                focus:outline-none focus:ring-blue-300 font-medium rounded-lg-->
+<!--                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700-->
+<!--                dark:focus:ring-blue-800">Modifier</button>-->
+<!--    </span>-->
     </form>
