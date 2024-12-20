@@ -1,5 +1,4 @@
 drop table if exists encheres;
-drop table if exists articles_vendus;
 drop table if exists articles;
 drop table if exists categories;
 drop table if exists retraits;
@@ -54,7 +53,7 @@ CREATE TABLE articles
     description         VARCHAR(300) NOT NULL,
     date_debut_encheres DATE         NOT NULL,
     date_fin_encheres   DATE         NOT NULL,
-    prix_initial        INTEGER,
+    prix_initial        INTEGER	DEFAULT 0,
     prix_vente          INTEGER,
     no_utilisateur      INTEGER      NOT NULL,
     no_categorie        INTEGER      NOT NULL,
@@ -67,3 +66,32 @@ ALTER TABLE utilisateurs
 
 ALTER TABLE utilisateurs
     add constraint UQ_utilisateurs_pseudo UNIQUE (pseudo);
+
+ALTER TABLE articles
+    ADD CONSTRAINT encheres_utilisateur_fk FOREIGN KEY ( no_utilisateur ) REFERENCES utilisateurs ( no_utilisateur )
+        ON DELETE NO ACTION
+        ON UPDATE no action ;
+
+ALTER TABLE encheres
+    ADD CONSTRAINT encheres_articles_fk FOREIGN KEY ( no_article )
+        REFERENCES articles ( no_article )
+        ON DELETE NO ACTION
+        ON UPDATE no action ;
+
+ALTER TABLE retraits
+    ADD CONSTRAINT retraits_articles_fk FOREIGN KEY ( no_article )
+        REFERENCES articles ( no_article )
+        ON DELETE NO ACTION
+        ON UPDATE no action ;
+
+ALTER TABLE articles
+    ADD CONSTRAINT articles_categories_fk FOREIGN KEY ( no_categorie )
+        REFERENCES categories ( no_categorie )
+        ON DELETE NO ACTION
+        ON UPDATE no action ;
+
+ALTER TABLE articles
+    ADD CONSTRAINT ventes_utilisateur_fk FOREIGN KEY ( no_utilisateur )
+        REFERENCES utilisateurs ( no_utilisateur )
+        ON DELETE NO ACTION
+        ON UPDATE no action ;
