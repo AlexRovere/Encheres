@@ -11,13 +11,23 @@ public class CustomUserDetails  implements UserDetails {
     private int noUtilisateur;
     private String username;
     private String password;
+    private int credit;
     private Collection<? extends GrantedAuthority> authorities;
-
-    public CustomUserDetails(int noUtilisateur, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    
+    public CustomUserDetails(int noUtilisateur, String username, String password, int credit, Collection<? extends GrantedAuthority> authorities) {
         this.noUtilisateur = noUtilisateur;
         this.username = username;
         this.password = password;
+        this.credit = credit;
         this.authorities = authorities;
+    }
+
+    public int getCredit() {
+        return credit;
+    }
+
+    public void setCredit(int credit) {
+        this.credit = credit;
     }
 
     @Override

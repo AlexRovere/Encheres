@@ -1,10 +1,12 @@
 package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Article;
+import fr.eni.encheres.bo.Enchere;
 import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.security.CustomUserDetails;
+import fr.eni.encheres.services.ArticleServiceImpl;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
 import fr.eni.encheres.services.interf.UtilisateurService;
@@ -12,13 +14,13 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -30,11 +32,13 @@ public class ArticleController {
     private final ArticleService articleService;
     private final CategorieService categorieService;
     private final UtilisateurService utilisateurService;
+    private final ArticleServiceImpl articleServiceImpl;
 
-    public ArticleController(ArticleService articleService, CategorieService categorieService, UtilisateurService utilisateurService) {
+    public ArticleController(ArticleService articleService, CategorieService categorieService, UtilisateurService utilisateurService, ArticleServiceImpl articleServiceImpl) {
         this.articleService = articleService;
         this.categorieService = categorieService;
         this.utilisateurService = utilisateurService;
+        this.articleServiceImpl = articleServiceImpl;
     }
 
     @GetMapping("/articles")
@@ -54,7 +58,11 @@ public class ArticleController {
         if(articleOptional.isEmpty()) {
             return "redirect:/articles";
         }
-        model.addAttribute("article", articleOptional.get());
+        Article article = articleOptional.get();
+        article.setEtatVente(articleService.getEtatVente(article));
+
+        model.addAttribute("enchere", articleService.getMeilleurEnchere(article));
+        model.addAttribute("article", article);
         model.addAttribute("body", "pages/articles/detailArticle");
         return "index";
     }
@@ -114,9 +122,79 @@ public class ArticleController {
         Optional<Article> articleFromModel = Optional.ofNullable((Article) model.getAttribute("article"));
         article = articleFromModel.orElse(article);
 
+        article.setEtatVente(articleService.getEtatVente(article));
+
         model.addAttribute("body", "pages/articles/enregistrerArticle");
         model.addAttribute("article", article);
         return "index";
+    }
+
+    @PostMapping("/articles/modifier")
+    public String postModifierArticle(Model model, @AuthenticationPrincipal CustomUserDetails user, @Valid @ModelAttribute("article") Article article, BindingResult result,  RedirectAttributes redirectAttr,
+                                     @RequestParam("ville") String ville, @RequestParam("rue") String rue, @RequestParam("codePostal") String codePostal) {
+        Optional<Utilisateur> utilisateurOptional;
+        utilisateurOptional = utilisateurService.getById(user.getNoUtilisateur());
+        if(utilisateurOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+        Retrait retrait = new Retrait(rue, codePostal, ville);
+        article.setRetrait(retrait);
+        article.setUtilisateur(utilisateurOptional.get());
+        if(result.hasErrors()){
+            redirectAttr.addFlashAttribute( "org.springframework.validation.BindingResult.article", result);
+            redirectAttr.addFlashAttribute("article", article);
+            return "redirect:/articles/modifier/" + article.getNoArticle();
+        }
+        articleService.update(article);
+        return "redirect:/articles";
+    }
+
+    @GetMapping("/articles/supprimer/{noArticle}")
+    public String supprimerArticle(Model model,@AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int noArticle) {
+        Optional<Article> articleOptional = articleService.getById(noArticle);
+        if(articleOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+
+        Article article = articleOptional.get();
+
+        if(article.getUtilisateur().getNoUtilisateur() != user.getNoUtilisateur()) {
+            return "redirect:/articles";
+        }
+
+        articleService.delete(article.getNoArticle());
+        return "redirect:/articles";
+    }
+
+    @PostMapping("/articles/encheres/{noArticle}")
+    public String postEnchere(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int noArticle, @RequestParam("montantEnchere") int montantEnchere) {
+        Optional<Article> articleOptional = articleService.getById(noArticle);
+        if(articleOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+
+        Article article = articleOptional.get();
+
+        if(article.getUtilisateur().getNoUtilisateur() == user.getNoUtilisateur()) {
+            return "redirect:/articles";
+        }
+
+        Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(user.getNoUtilisateur());
+
+        if(utilisateurOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+
+        Utilisateur utilisateur = utilisateurOptional.get();
+
+        Enchere enchere = new Enchere();
+        enchere.setDateEnchere(LocalDate.now());
+        enchere.setMontantEnchere(montantEnchere);
+        enchere.setUtilisateur(utilisateur);
+
+        articleService.enchere(article, enchere);
+
+        return "redirect:/articles";
     }
 
 

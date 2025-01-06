@@ -1,6 +1,7 @@
 <div class="container h-full max-w-lg mx-auto flex flex-col" th:object="${article}">
     <h1 class="mx-auto text-center text-md my-5 text-lg font-bold">
         Détail de l'article [[${article.nomArticle}]]
+        <div>Etat de la vente : [[${article.etatVente}]]</div>
     </h1>
     <div class="overflow-scroll mb-20 ">
         <input type="hidden" th:field="*{noArticle}">
@@ -21,9 +22,17 @@
             </div>
 
             <div>
-                <label for="categorie" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Catégorie</label>
+                <label for="categorie"
+                       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Catégorie</label>
                 <input disabled readonly id="categorie" name="categorie" th:value="*{categorie.libelle}"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+
+            <div th:object="${meilleurEnchere}">
+               meilleur :  [[${meilleurEnchere}]]
+<!--                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Meilleur offre</label>-->
+<!--                <input disabled readonly type="number" min="0" th:value="*{montantEnchere}" id="prixInitial"-->
+<!--                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">-->
             </div>
 
             <div>
@@ -36,14 +45,17 @@
                 <div class="flex-grow">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Début de
                         l'enchère</label>
-                    <input disabled readonly type="date" name="dateDebutEncheres" th:value="${@toolsService.formatDateToString(article.dateDebutEncheres)}" id="dateDebutEncheres"
+                    <input disabled readonly type="date" name="dateDebutEncheres"
+                           th:value="${@toolsService.formatDateToString(article.dateDebutEncheres)}"
+                           id="dateDebutEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
 
                 <div class="flex-grow">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fin de
                         l'enchère</label>
-                    <input disabled readonly type="date" name="dateFinEncheres" th:value="${@toolsService.formatDateToString(article.dateFinEncheres)}" id="dateFinEncheres"
+                    <input disabled readonly type="date" name="dateFinEncheres"
+                           th:value="${@toolsService.formatDateToString(article.dateFinEncheres)}" id="dateFinEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
             </div>
@@ -66,16 +78,32 @@
             </div>
         </div>
     </div>
-    <!--
-    <div class="mx-auto flex justify-around">
-        <button type="button"
-                class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            <a th:href="@{/articles}">Retour</a>
-        </button>
-        <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur}" th:href="@{/articles/modifier/{noArticle}(noArticle=${article.noArticle})}" type="button"
-                class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            Modifier l'article
-        </a>
+    <div class="mx-auto flex flex-col justify-around items-center gap-5">
+        <form th:if="${#authentication.principal?.noUtilisateur != article.utilisateur.noUtilisateur && article.etatVente == 'en cours'}" th:action="@{/articles/encheres/{noArticle}(noArticle=${article.noArticle})}" method="post">
+            <div class="flex items-center gap-5">
+            Ma proposition :
+            <input type="number" name="montantEnchere" min="0" th:max="${#authentication.principal.credit}"/>
+            <button type="submit"
+                    class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Enchérir
+            </button>
+            </div>
+        </form>
+        <div>
+            <button type="button"
+                    class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                <a th:href="@{/articles}">Retour</a>
+            </button>
+            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && article.etatVente == 'en cours' || article.etatVente == 'créée'}"
+               th:href="@{/articles/supprimer/{noArticle}(noArticle=${article.noArticle})}" type="button"
+               class="flex justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Supprimer l'article
+            </a>
+            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && article.etatVente == 'en cours' || article.etatVente == 'créée'}"
+               th:href="@{/articles/modifier/{noArticle}(noArticle=${article.noArticle})}" type="button"
+               class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Modifier l'article
+            </a>
+        </div>
     </div>
-    -->
 </div>

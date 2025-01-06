@@ -36,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             List<GrantedAuthority> roles = List.of(role);
 
-            return new CustomUserDetails(user.getNoUtilisateur(), user.getEmail(), user.getMotDePasse(), roles);
+            return new CustomUserDetails(user.getNoUtilisateur(), user.getEmail(), user.getMotDePasse(), user.getCredit(), roles);
         }
 
         throw new UsernameNotFoundException("User not found");

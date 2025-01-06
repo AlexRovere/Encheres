@@ -23,7 +23,7 @@ public class Article {
     private int prixInitial;
     @PositiveOrZero
     private int prixVente;
-    private int etatVente;
+    private String etatVente;
     @NotNull
     private boolean retraitEffectue;
     private Retrait retrait;
@@ -108,11 +108,11 @@ public class Article {
         this.prixVente = prixVente;
     }
 
-    public int getEtatVente() {
+    public String getEtatVente() {
         return etatVente;
     }
 
-    public void setEtatVente(int etatVente) {
+    public void setEtatVente(String etatVente) {
         this.etatVente = etatVente;
     }
 

@@ -1,9 +1,6 @@
 package fr.eni.encheres.dal;
 
-import fr.eni.encheres.bo.Article;
-import fr.eni.encheres.bo.Categorie;
-import fr.eni.encheres.bo.Retrait;
-import fr.eni.encheres.bo.Utilisateur;
+import fr.eni.encheres.bo.*;
 import fr.eni.encheres.dal.interf.ArticleRepository;
 import fr.eni.encheres.dto.FilterDto;
 import org.slf4j.Logger;
@@ -21,8 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -97,7 +96,9 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle, r.rue, r.code_postal, r.ville from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +
-                "left join categories c on a.no_categorie = c.no_categorie where a.no_article = :no_article";
+                "left join categories c on a.no_categorie = c.no_categorie " +
+                "left join encheres e on e.no_article = a.no_article " +
+                "where a.no_article = :no_article";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("no_article", noArticle);
         Article art = null;
@@ -110,13 +111,49 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     @Override
+    @Transactional
     public void update(Article article) {
+        String sqlRetrait = "update retraits set rue = :rue, ville = :ville, code_postal = :codePostal where no_article = :noArticle";
+        MapSqlParameterSource paramsRetrait = new MapSqlParameterSource();
+        paramsRetrait.addValue("noArticle", article.getNoArticle());
+        paramsRetrait.addValue("rue", article.getRetrait().getRue());
+        paramsRetrait.addValue("ville", article.getRetrait().getVille());
+        paramsRetrait.addValue("codePostal", article.getRetrait().getCodePostal());
 
+        String sqlArticle = "update articles SET nom_article = :nomArticle, description = :description, date_debut_encheres = :dateDebutEncheres, date_fin_encheres = :dateFinEncheres, " +
+                "prix_initial = :prixInitial, no_categorie = :noCategorie where no_article = :noArticle";
+        MapSqlParameterSource paramsArticle = new MapSqlParameterSource();
+        paramsArticle.addValue("noArticle", article.getNoArticle());
+        paramsArticle.addValue("nomArticle", article.getNomArticle());
+        paramsArticle.addValue("description", article.getDescription());
+        paramsArticle.addValue("dateDebutEncheres", article.getDateDebutEncheres());
+        paramsArticle.addValue("dateFinEncheres", article.getDateFinEncheres());
+        paramsArticle.addValue("prixInitial", article.getPrixInitial());
+        paramsArticle.addValue("noCategorie", article.getCategorie().getNoCategorie());
+
+        try {
+            namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
+            namedParameterJdbcTemplate.update(sqlArticle, paramsArticle);
+
+        } catch (DataAccessException e) {
+            logger.error("Impossible de modifier l'article id : {}", article.getNoArticle(), e);
+        }
     }
 
     @Override
+    @Transactional
     public void delete(int id) {
+        String sqlRetrait = "delete from retraits where no_article = :noArticle";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noArticle", id);
 
+        String sqlArticle = "delete from articles where no_article = :noArticle";
+        try {
+            namedParameterJdbcTemplate.update(sqlRetrait, params);
+            namedParameterJdbcTemplate.update(sqlArticle, params);
+        } catch (DataAccessException e) {
+            logger.error("Impossible de supprimer l'article id : {}", id, e);
+        }
     }
 
     @Override
@@ -157,6 +194,22 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         }
 System.out.println(articles);
         return articles;
+    }
+
+    @Override
+    public void enchere(Article article, Enchere enchere) {
+        String sql = "insert into encheres (no_utilisateur, no_article, date_enchere, montant_enchere) values (:noUtilisateur, :noArticle, :dateEnchere, :montantEnchere)";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
+        params.addValue("noArticle", article.getNoArticle());
+        params.addValue("dateEnchere", enchere.getDateEnchere());
+        params.addValue("montantEnchere", enchere.getMontantEnchere());
+
+        try {
+            namedParameterJdbcTemplate.update(sql, params);
+        } catch (DataAccessException e) {
+            logger.error("Impossible de faire l'enchère", e);
+        }
     }
 
     private static class ArticleRowMapper implements RowMapper<Article> {
