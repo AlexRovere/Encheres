@@ -4,6 +4,7 @@ import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -77,9 +78,9 @@ public class UtilisateurController {
         if (utilisateurOpt.isEmpty()) {
             return "redirect:/articles";
         }
-        model.addAttribute("utilisateur", utilisateurOpt.get());
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         utilisateurService.update(utilisateur);
+        model.addAttribute("utilisateur", utilisateurOpt.get());
         return "redirect:/utilisateurs/detail/" + utilisateur.getNoUtilisateur();
     }
 

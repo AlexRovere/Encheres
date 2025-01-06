@@ -1,9 +1,9 @@
-<!--<form th:action="${noUtilisateur ? '/utilisateurs/modifier' : '/utilisateurs/ajouter'}" method="post"  th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">-->
 
-    <h1 th:text="${utilisateur.noUtilisateur} ? 'Mofifier votre compte' : 'Créer votre compte'" class="text-3xl font-bold pb-8 text-gray-900 text-center">
+    <h1 th:text="${utilisateur.noUtilisateur} ? 'Mofifier votre profil' : 'Créer votre profil'" class="text-3xl font-bold pb-8 text-gray-900 text-center">
     </h1>
-<form   th:object="${utilisateur}" style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
-    [[${noUtilisateur}]]
+<form   th:action="@{/utilisateurs/modifier}" th:object="${utilisateur}" method="post" style="padding-top: 33px"
+        class="max-w-sm mx-auto h-full flex justify-center flex-col">
+    <input type="hidden" th:field="*{noUtilisateur}" th:value="${utilisateur.noUtilisateur}">
     <div class="overflow-scroll">
             <div class="p-5 flex-col gap-5">
         <div class="mb-5">
@@ -52,19 +52,15 @@
         </div>
             </div>
         </div>
-<!--    <span th:if="${!noUtilisateur}">-->
-<!--        <button type="submit"-->
-<!--                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4-->
-<!--                focus:outline-none focus:ring-blue-300 font-medium rounded-lg-->
-<!--                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700-->
-<!--                dark:focus:ring-blue-800">Enregistrer</button>-->
-<!--    </span>-->
+    <button type="submit" th:text="${utilisateur.noUtilisateur} ? 'Enregistrer' : 'Créer votre profil'"
+            class="text-white mb-2 bg-blue-700 hover:bg-blue-800 focus:ring-4
+                focus:outline-none focus:ring-blue-300 font-medium rounded-lg
+                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
+                dark:focus:ring-blue-800"></button>
 
-<!--    <span th:if="${noUtilisateur}">-->
-<!--        <button type="submit"-->
-<!--                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4-->
-<!--                focus:outline-none focus:ring-blue-300 font-medium rounded-lg-->
-<!--                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700-->
-<!--                dark:focus:ring-blue-800">Modifier</button>-->
-<!--    </span>-->
+    <button type="submit" th:text="${utilisateur.noUtilisateur} ? 'Supprimer mon profil' : 'Non disponible'"
+            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4
+                focus:outline-none focus:ring-blue-300 font-medium rounded-lg
+                text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
+                dark:focus:ring-blue-800"></button>
     </form>
