@@ -46,8 +46,8 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     // Delete
     @Override
-    public void delete(int id) {
-
+    public void delete(int noUtilisateur) {
+        utilisateurRepository.delete(noUtilisateur);
     }
 
     @Override

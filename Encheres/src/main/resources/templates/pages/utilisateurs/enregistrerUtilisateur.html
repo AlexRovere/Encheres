@@ -1,11 +1,14 @@
+<h1 th:text="${utilisateur.noUtilisateur} ? 'Modifier votre profil' : 'Créer votre profil'" class="text-3xl font-bold pb-8 text-gray-900 text-center">
+</h1>
 
-    <h1 th:text="${utilisateur.noUtilisateur} ? 'Mofifier votre profil' : 'Créer votre profil'" class="text-3xl font-bold pb-8 text-gray-900 text-center">
-    </h1>
-<form   th:action="@{/utilisateurs/modifier}" th:object="${utilisateur}" method="post" style="padding-top: 33px"
+<form   th:action="${noUtilisateur} ? '/utilisateurs/ajouter' : '/utilisateurs/modifier'" th:object="${utilisateur}" method="post" style="padding-top: 33px"
         class="max-w-sm mx-auto h-full flex justify-center flex-col">
+
     <input type="hidden" th:field="*{noUtilisateur}" th:value="${utilisateur.noUtilisateur}">
+
     <div class="overflow-scroll">
             <div class="p-5 flex-col gap-5">
+
         <div class="mb-5">
             <label for="pseudo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pseudo</label>
             <input type="text" id="pseudo" th:field="*{pseudo}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Pseudo">
@@ -58,9 +61,11 @@
                 text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
                 dark:focus:ring-blue-800"></button>
 
-    <button type="submit" th:text="${utilisateur.noUtilisateur} ? 'Supprimer mon profil' : 'Non disponible'"
+    <div th:if="${afficherBoutonSupprimer}"
             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4
                 focus:outline-none focus:ring-blue-300 font-medium rounded-lg
                 text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
-                dark:focus:ring-blue-800"></button>
+                dark:focus:ring-blue-800">
+    <button type="button" ><a th:href="@{/utilisateurs/supprimer/{noUtilisateur}(noUtilisateur = ${noUtilisateur})}">Supprimer mon profil</a></button>
+    </div>
     </form>

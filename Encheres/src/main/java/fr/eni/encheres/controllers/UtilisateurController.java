@@ -2,6 +2,7 @@ package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.services.interf.UtilisateurService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
@@ -11,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -47,6 +50,7 @@ public class UtilisateurController {
     @GetMapping("/utilisateurs/ajouter")
     public String afficherFormulaireEnregistrerUtilisateur(Model model) {
         Utilisateur utilisateur = new Utilisateur();
+        Model afficherBoutonSupprimer = model.addAttribute("afficherBoutonSupprimer", false);
         model.addAttribute("utilisateur", utilisateur);
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         return "index";
@@ -66,6 +70,7 @@ public class UtilisateurController {
         if (utilisateurOptional.isEmpty()) {
             return "redirect:/articles";
         }
+        Model afficherBoutonSupprimer = model.addAttribute("afficherBoutonSupprimer", true);
         model.addAttribute("utilisateur", utilisateurOptional.get());
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         return "index";
@@ -84,5 +89,22 @@ public class UtilisateurController {
         return "redirect:/utilisateurs/detail/" + utilisateur.getNoUtilisateur();
     }
 
+    // Suppression sur enregistrerUtilisateur
+    @GetMapping("/utilisateurs/supprimer/{noUtilisateur}")
+    public String supprimerUtilisateur(Model model, @PathVariable("noUtilisateur") int noUtilisateur, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        Optional<Utilisateur> utilisateurOpt = utilisateurService.getById(noUtilisateur);
+        if (utilisateurOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Le profil est introuvable.");
+            return "redirect:/articles";
+        }
+        try {
+            utilisateurService.delete(noUtilisateur);
+            request.getSession().invalidate();
+        } catch (Exception e){
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de la suppression du profil");
+            return "redirect:/articles";
+        }
+        return "redirect:/articles";
+    }
 }
 

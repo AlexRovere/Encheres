@@ -71,8 +71,11 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
     // Delete
     @Override
-    public void delete(int id) {
-
+    public void delete(int noUtilisateur) {
+        String sql = "DELETE FROM utilisateurs WHERE no_utilisateur = :noUtilisateur";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noUtilisateur", noUtilisateur);
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
     @Override
