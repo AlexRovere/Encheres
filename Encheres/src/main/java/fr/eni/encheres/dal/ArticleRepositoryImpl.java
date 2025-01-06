@@ -5,6 +5,7 @@ import fr.eni.encheres.bo.Categorie;
 import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.ArticleRepository;
+import fr.eni.encheres.dto.FilterDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -115,6 +117,46 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Override
     public void delete(int id) {
 
+    }
+
+    @Override
+    public List<Article> getAllWithFilters(FilterDto filters) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
+                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle,  r.rue, r.code_postal, r.ville from articles a " +
+                "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
+                "left join retraits r on a.no_article = r.no_article " +
+                "left join categories c on a.no_categorie = c.no_categorie ");
+
+        boolean where = false;
+
+        if(filters.getNomArticle() != null && !filters.getNomArticle().isBlank()) {
+            if(!where) {
+                sql.append("where ");
+                where = true;
+            }
+            sql.append("lower(nom_article) LIKE '%").append(filters.getNomArticle().toLowerCase()).append("%' ");
+        }
+
+        if(filters.getNoCategorie() != null && filters.getNoCategorie() > 0) {
+            if(!where) {
+                sql.append("where ");
+                where = true;
+            } else {
+                    sql.append("and ");
+            }
+            sql.append("c.no_categorie = ").append(filters.getNoCategorie()).append(" ");
+        }
+
+
+        List<Article> articles = new ArrayList<>();
+        try {
+            articles = namedParameterJdbcTemplate.query(sql.toString(), new ArticleRowMapper());
+        } catch (DataAccessException e) {
+            logger.error("Impossible de récupérer la liste des articles", e);
+        }
+System.out.println(articles);
+        return articles;
     }
 
     private static class ArticleRowMapper implements RowMapper<Article> {

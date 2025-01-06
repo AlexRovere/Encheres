@@ -3,6 +3,7 @@ package fr.eni.encheres.controllers;
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
+import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.security.CustomUserDetails;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
@@ -37,12 +38,14 @@ public class ArticleController {
     }
 
     @GetMapping("/articles")
-    public String getArticles(Model model, @PathVariable(value = "filter", required = false) String filter) {
+    public String getArticles(Model model, FilterDto filterDto) {
         model.addAttribute("categories", categorieService.getAll());
-        model.addAttribute("articles", articleService.getAll());
+        model.addAttribute("filterDto", filterDto);
+        model.addAttribute("articles", articleService.getAllWithFilters(filterDto));
         model.addAttribute("body", "pages/articles/listeArticle");
         return "index";
     }
+
 
     @GetMapping("/articles/detail/{noArticle}")
     public String getDetailArticle(Model model, @PathVariable("noArticle") int noArticle) {
