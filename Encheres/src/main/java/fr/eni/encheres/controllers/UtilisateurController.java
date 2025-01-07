@@ -1,20 +1,29 @@
 package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.Utilisateur;
+import fr.eni.encheres.dto.UserUpdatePasswordDto;
+import fr.eni.encheres.security.CustomUserDetails;
+import fr.eni.encheres.services.UtilisateurServiceImpl;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import org.springframework.boot.context.properties.bind.validation.ValidationErrors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.Clock;
 import java.util.Optional;
 
 @Controller
@@ -23,10 +32,13 @@ public class UtilisateurController {
     private static final Logger logger = LoggerFactory.getLogger(UtilisateurController.class);
     private final UtilisateurService utilisateurService;
     private final PasswordEncoder passwordEncoder;
+    private final UtilisateurServiceImpl utilisateurServiceImpl;
+    private UserUpdatePasswordDto userUpdatePasswordDto;
 
-    public UtilisateurController(UtilisateurService utilisateurService, PasswordEncoder passwordEncoder) {
+    public UtilisateurController(UtilisateurService utilisateurService, PasswordEncoder passwordEncoder, UtilisateurServiceImpl utilisateurServiceImpl) {
         this.utilisateurService = utilisateurService;
         this.passwordEncoder = passwordEncoder;
+        this.utilisateurServiceImpl = utilisateurServiceImpl;
     }
 
     @GetMapping({"/", "/login"})
@@ -113,9 +125,40 @@ public class UtilisateurController {
 
     // Affichage de la page de modification du mdp
     @GetMapping("/utilisateurs/modifier/motDePasse")
-    public String ModifierMotDePasse(Model model){
+    public String modifierMotDePasse(Model model){
+        model.addAttribute("userUpdatePasswordDto", new UserUpdatePasswordDto());
         model.addAttribute("body", "pages/utilisateurs/motDePasseUtilisateur");
         return "index";
+    }
+
+    @PostMapping("/utilisateurs/modifier/motDePasse")
+    public String saveModificationMotDePasse(Model model, @Valid @ModelAttribute("userUpdatePasswordDto") UserUpdatePasswordDto userUpdatePasswordDto,
+                                             BindingResult result, @AuthenticationPrincipal CustomUserDetails user, RedirectAttributes redirectAttributes) {
+        // S'assurer que l'utilisateur est connecté
+        Optional<Utilisateur> utilisateurOpt = utilisateurService.getById(user.getNoUtilisateur());
+        if (utilisateurOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Le profil est introuvable.");
+            return "redirect:/articles";
+        }
+        // Vérification des erreurs dans le formulaire
+        if (result.hasErrors()) {
+            model.addAttribute("body", "pages/utilisateurs/motDePasseUtilisateur");
+            return "index";
+        }
+        // Vérifier si les 2 mdp correspondent
+        if(!userUpdatePasswordDto.getNouveauMotDePasse().equals(userUpdatePasswordDto.getConfirmationMotDePasse())) {
+            result.rejectValue("nouveauMotDePasse", "error.confirmationMotDePasse", "Les mots de passe ne correspondent pas.");
+            model.addAttribute("body", "pages/utilisateurs/motDePasseUtilisateur");
+            return "index";
+        }
+        // Mettre à jour le mot de passe hashé dans la BDD
+        Utilisateur utilisateur = utilisateurOpt.get();
+        String motDePasseHashed = passwordEncoder.encode(userUpdatePasswordDto.getNouveauMotDePasse());
+        utilisateur.setMotDePasse(motDePasseHashed);
+        utilisateurService.update(utilisateur);
+
+        redirectAttributes.addFlashAttribute("enregistrementReussi", "Mot de passe modifié avec succès.");
+        return "redirect:/utilisateurs/modifier/" + utilisateur.getNoUtilisateur();
     }
 }
 

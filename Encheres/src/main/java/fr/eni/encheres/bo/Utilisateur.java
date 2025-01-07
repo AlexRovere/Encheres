@@ -1,5 +1,7 @@
 package fr.eni.encheres.bo;
 
+import org.springframework.data.relational.core.mapping.Column;
+
 public class Utilisateur {
     private int noUtilisateur;
     private String pseudo;
