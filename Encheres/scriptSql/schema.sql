@@ -1,7 +1,7 @@
 drop table if exists encheres;
+drop table if exists retraits;
 drop table if exists articles;
 drop table if exists categories;
-drop table if exists retraits;
 drop table if exists utilisateurs;
 
 CREATE TABLE categories
@@ -12,11 +12,11 @@ CREATE TABLE categories
 
 CREATE TABLE encheres
 (
+    no_enchere      INTEGER primary key generated always as identity,
     no_utilisateur  INTEGER   NOT NULL,
     no_article      INTEGER   NOT NULL,
     date_enchere    timestamp NOT NULL,
-    montant_enchere INTEGER   NOT NULL,
-    PRIMARY KEY (no_utilisateur, no_article)
+    montant_enchere INTEGER   NOT NULL
 );
 
 CREATE TABLE retraits
