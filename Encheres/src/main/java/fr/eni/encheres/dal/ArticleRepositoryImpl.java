@@ -90,6 +90,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         return articles;
     }
 
+    @Transactional
     @Override
     public Optional<Article> getById(int noArticle) {
         String sql = "select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
@@ -97,13 +98,16 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +
                 "left join categories c on a.no_categorie = c.no_categorie " +
-                "left join encheres e on e.no_article = a.no_article " +
-                "where a.no_article = :no_article";
+                "where a.no_article = :noArticle";
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("no_article", noArticle);
+        params.addValue("noArticle", noArticle);
+        String sqlEnchere = "select e.no_utilisateur, no_article, date_enchere, montant_enchere, u.pseudo, u.credit from encheres e left join utilisateurs u on u.no_utilisateur = e.no_utilisateur where no_article = :noArticle";
+
         Article art = null;
         try {
             art = namedParameterJdbcTemplate.queryForObject(sql, params, new ArticleRowMapper());
+            List<Enchere> encheres = namedParameterJdbcTemplate.query(sqlEnchere, params, new EnchereRowMapper());
+            art.setEncheres(encheres);
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer l'article id : {}", noArticle, e);
         }
@@ -167,20 +171,20 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
         boolean where = false;
 
-        if(filters.getNomArticle() != null && !filters.getNomArticle().isBlank()) {
-            if(!where) {
+        if (filters.getNomArticle() != null && !filters.getNomArticle().isBlank()) {
+            if (!where) {
                 sql.append("where ");
                 where = true;
             }
             sql.append("lower(nom_article) LIKE '%").append(filters.getNomArticle().toLowerCase()).append("%' ");
         }
 
-        if(filters.getNoCategorie() != null && filters.getNoCategorie() > 0) {
-            if(!where) {
+        if (filters.getNoCategorie() != null && filters.getNoCategorie() > 0) {
+            if (!where) {
                 sql.append("where ");
                 where = true;
             } else {
-                    sql.append("and ");
+                sql.append("and ");
             }
             sql.append("c.no_categorie = ").append(filters.getNoCategorie()).append(" ");
         }
@@ -192,12 +196,12 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer la liste des articles", e);
         }
-System.out.println(articles);
         return articles;
     }
 
+    @Transactional
     @Override
-    public void enchere(Article article, Enchere enchere) {
+    public int enchere(Article article, Enchere enchere) {
         String sql = "insert into encheres (no_utilisateur, no_article, date_enchere, montant_enchere) values (:noUtilisateur, :noArticle, :dateEnchere, :montantEnchere)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
@@ -207,9 +211,24 @@ System.out.println(articles);
 
         try {
             namedParameterJdbcTemplate.update(sql, params);
+            return removeCredit(enchere);
         } catch (DataAccessException e) {
             logger.error("Impossible de faire l'enchère", e);
         }
+        return enchere.getUtilisateur().getCredit();
+    }
+
+    public int removeCredit(Enchere enchere) {
+        int credit = enchere.getUtilisateur().getCredit() - enchere.getMontantEnchere();
+        System.out.println(enchere);
+        String sql = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
+        params.addValue("credit", credit);
+
+        namedParameterJdbcTemplate.update(sql, params);
+
+        return credit;
     }
 
     private static class ArticleRowMapper implements RowMapper<Article> {
@@ -248,5 +267,25 @@ System.out.println(articles);
 
             return article;
         }
+
     }
+
+    private static class EnchereRowMapper implements RowMapper<Enchere> {
+
+        @Override
+        public Enchere mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Enchere enchere = new Enchere();
+            enchere.setMontantEnchere(rs.getInt("montant_enchere"));
+            enchere.setDateEnchere(rs.getDate("date_enchere").toLocalDate());
+
+            Utilisateur utilisateur = new Utilisateur();
+            utilisateur.setNoUtilisateur(rs.getInt("no_utilisateur"));
+            utilisateur.setPseudo(rs.getString("pseudo"));
+            utilisateur.setCredit(rs.getInt("credit"));
+
+            enchere.setUtilisateur(utilisateur);
+            return enchere;
+        }
+    }
+
 }

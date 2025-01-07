@@ -1,7 +1,13 @@
 <div class="container h-full max-w-lg mx-auto flex flex-col" th:object="${article}">
     <h1 class="mx-auto text-center text-md my-5 text-lg font-bold">
         Détail de l'article [[${article.nomArticle}]]
-        <div>Etat de la vente : [[${article.etatVente}]]</div>
+        <div>Etat de la vente : [[#{${article.etatVente}}]]</div>
+        <div>Vendeur : [[${article.utilisateur.pseudo}]]</div>
+        <div th:if="*{etatVente.name() == 'COMPLETED' || etatVente.name() == 'COLLECTED'}">
+            <div th:if="${enchere.utilisateur?.pseudo}">[[${enchere.pseudo}]] a remporté l'enchère</div>
+            <div th:if="!${enchere.utilisateur?.pseudo}">Personne n'a remporté l'enchère</div>
+        </div>
+
     </h1>
     <div class="overflow-scroll mb-20 ">
         <input type="hidden" th:field="*{noArticle}">
@@ -28,17 +34,16 @@
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             </div>
 
-            <div th:object="${meilleurEnchere}">
-               meilleur :  [[${meilleurEnchere}]]
-<!--                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Meilleur offre</label>-->
-<!--                <input disabled readonly type="number" min="0" th:value="*{montantEnchere}" id="prixInitial"-->
-<!--                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">-->
+            <div th:if="${enchere.utilisateur}" th:object="${enchere}">
+               Meilleur offre :  [[*{montantEnchere}]] points par [[*{utilisateur?.pseudo}]]
+            </div>
+
+            <div th:if="!${enchere.utilisateur}" th:object="${enchere}">
+               Aucune offre pour le moment !
             </div>
 
             <div>
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prix initial</label>
-                <input disabled readonly type="number" min="0" th:value="*{prixInitial}" id="prixInitial"
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                Prix initial : [[*{prixInitial}]] points
             </div>
 
             <div class="flex gap-5">
@@ -78,28 +83,32 @@
             </div>
         </div>
     </div>
+    <div class="text-center text-green-500 text-lg" th:if="${success}">[[${success}]]</div>
+    <div class="text-center text-red-500 text-lg" th:if="${errorNotEnoughCredit}">[[${errorNotEnoughCredit}]]</div>
+    <div class="text-center text-red-500 text-lg" th:if="${errorMinimumEnchere}">[[${errorMinimumEnchere}]]</div>
+
     <div class="mx-auto flex flex-col justify-around items-center gap-5">
-        <form th:if="${#authentication.principal?.noUtilisateur != article.utilisateur.noUtilisateur && article.etatVente == 'en cours'}" th:action="@{/articles/encheres/{noArticle}(noArticle=${article.noArticle})}" method="post">
+        <form th:if="${#authentication.principal?.noUtilisateur != article.utilisateur.noUtilisateur && article.etatVente.name() == 'PROCESSING'}" th:action="@{/articles/encheres/{noArticle}(noArticle=${article.noArticle})}" method="post">
             <div class="flex items-center gap-5">
             Ma proposition :
-            <input type="number" name="montantEnchere" min="0" th:max="${#authentication.principal.credit}"/>
+            <input type="number" name="montantEnchere" th:min="${enchere.montantEnchere}" th:max="${#authentication.principal.credit}"/>
             <button type="submit"
                     class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 Enchérir
             </button>
             </div>
         </form>
-        <div>
+        <div class="flex justify-around gap-5">
             <button type="button"
                     class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 <a th:href="@{/articles}">Retour</a>
             </button>
-            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && article.etatVente == 'en cours' || article.etatVente == 'créée'}"
+            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && (article.etatVente.name() == 'PROCESSING' || article.etatVente.name() == 'CREATED')}"
                th:href="@{/articles/supprimer/{noArticle}(noArticle=${article.noArticle})}" type="button"
                class="flex justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 Supprimer l'article
             </a>
-            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && article.etatVente == 'en cours' || article.etatVente == 'créée'}"
+            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && (article.etatVente.name() == 'PROCESSING' || article.etatVente.name() == 'CREATED')}"
                th:href="@{/articles/modifier/{noArticle}(noArticle=${article.noArticle})}" type="button"
                class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 Modifier l'article
