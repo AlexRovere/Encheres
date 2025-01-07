@@ -50,7 +50,9 @@ public class UtilisateurController {
     @GetMapping("/utilisateurs/ajouter")
     public String afficherFormulaireEnregistrerUtilisateur(Model model) {
         Utilisateur utilisateur = new Utilisateur();
-        Model afficherBoutonSupprimer = model.addAttribute("afficherBoutonSupprimer", false);
+        model.addAttribute("afficherLienSupprimer", false);
+        model.addAttribute("afficherLienModifierMdp", false);
+        model.addAttribute("afficherMotDePasse", true);
         model.addAttribute("utilisateur", utilisateur);
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         return "index";
@@ -70,7 +72,9 @@ public class UtilisateurController {
         if (utilisateurOptional.isEmpty()) {
             return "redirect:/articles";
         }
-        Model afficherBoutonSupprimer = model.addAttribute("afficherBoutonSupprimer", true);
+        model.addAttribute("afficherLienSupprimer", true);
+        model.addAttribute("afficherLienModifierMdp", true);
+        model.addAttribute("afficherMotDePasse", false);
         model.addAttribute("utilisateur", utilisateurOptional.get());
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         return "index";
@@ -105,6 +109,13 @@ public class UtilisateurController {
             return "redirect:/articles";
         }
         return "redirect:/articles";
+    }
+
+    // Affichage de la page de modification du mdp
+    @GetMapping("/utilisateurs/modifier/motDePasse")
+    public String ModifierMotDePasse(Model model){
+        model.addAttribute("body", "pages/utilisateurs/motDePasseUtilisateur");
+        return "index";
     }
 }
 
