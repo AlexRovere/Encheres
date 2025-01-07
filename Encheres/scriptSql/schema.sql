@@ -1,5 +1,6 @@
 drop table if exists encheres;
 drop table if exists retraits;
+drop table if exists images;
 drop table if exists articles;
 drop table if exists categories;
 drop table if exists utilisateurs;
@@ -60,6 +61,14 @@ CREATE TABLE articles
     retrait_effectue    boolean default false
 );
 
+CREATE TABLE images
+(
+    no_article          INTEGER      NOT NULL,
+    file_name           VARCHAR(50)  NOT NULL,
+    mime_type           VARCHAR(50)  NOT NULL,
+    data                bytea        NOT NULL
+);
+
 ALTER TABLE utilisateurs
     add constraint UQ_utilisateurs_email UNIQUE (email);
 
@@ -71,6 +80,11 @@ ALTER TABLE articles
     ADD CONSTRAINT encheres_utilisateur_fk FOREIGN KEY ( no_utilisateur ) REFERENCES utilisateurs ( no_utilisateur )
         ON DELETE NO ACTION
         ON UPDATE no action ;
+
+ALTER TABLE images
+    ADD CONSTRAINT images_articles_fk FOREIGN KEY ( no_article ) REFERENCES articles ( no_article )
+        ON DELETE cascade
+        ON UPDATE cascade;
 
 ALTER TABLE encheres
     ADD CONSTRAINT encheres_articles_fk FOREIGN KEY ( no_article )

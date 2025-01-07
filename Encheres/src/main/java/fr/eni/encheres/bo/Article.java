@@ -31,26 +31,9 @@ public class Article {
     private Categorie categorie;
     private Utilisateur utilisateur;
     private List<Enchere> encheres = new ArrayList<>();
+    private Image image;
 
     public Article() {
-    }
-
-    @Override
-    public String toString() {
-        return "ArticleVendu{" +
-                "noArticle=" + noArticle +
-                ", nomArticle='" + nomArticle + '\'' +
-                ", description='" + description + '\'' +
-                ", dateDebutEncheres=" + dateDebutEncheres +
-                ", dateFinEncheres=" + dateFinEncheres +
-                ", prixInitial=" + prixInitial +
-                ", prixVente=" + prixVente +
-                ", etatVente=" + etatVente +
-                ", retrait=" + retrait +
-                ", categorie=" + categorie +
-                ", utilisateur=" + utilisateur +
-                ", encheres=" + encheres +
-                '}';
     }
 
     public int getNoArticle() {
@@ -149,11 +132,39 @@ public class Article {
         this.encheres = encheres;
     }
 
+    @Override
+    public String toString() {
+        return "Article{" +
+                "noArticle=" + noArticle +
+                ", nomArticle='" + nomArticle + '\'' +
+                ", description='" + description + '\'' +
+                ", dateDebutEncheres=" + dateDebutEncheres +
+                ", dateFinEncheres=" + dateFinEncheres +
+                ", prixInitial=" + prixInitial +
+                ", prixVente=" + prixVente +
+                ", etatVente=" + etatVente +
+                ", retraitEffectue=" + retraitEffectue +
+                ", retrait=" + retrait +
+                ", categorie=" + categorie +
+                ", utilisateur=" + utilisateur +
+                ", encheres=" + encheres +
+                ", image=" + image +
+                '}';
+    }
+
     public boolean isRetraitEffectue() {
         return retraitEffectue;
     }
 
     public void setRetraitEffectue(boolean retraitEffectue) {
         this.retraitEffectue = retraitEffectue;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public Image getImage() {
+        return image;
     }
 }

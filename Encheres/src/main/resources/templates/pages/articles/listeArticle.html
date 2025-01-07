@@ -30,7 +30,7 @@
                         <ul class="w-60 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <li>
                                 <div class="flex items-center ps-3">
-                                    <input type="radio" th:field="*{achat}" value="true"
+                                    <input  type="radio" th:field="*{achat}" value="true"
                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="bordered-radio-1"
                                            class="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Achats</label>
@@ -126,8 +126,13 @@
         <a th:href="@{articles/detail/{noArticle}(noArticle=${article.noArticle})}">
 
             <div class="gap-5 mx-auto flex flex-row items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
-                <img class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
-                     src="images/logo.jpg">
+               <div th:if="${article.image != null && article.image.data != null}">
+                <img  class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+                     th:src="'data:image/jpeg;base64,' + ${@imageService.convertByteToString(article.image?.data)}" style="height: 100px; width: 200px;">
+               </div>
+                <div th:if="${article.image.data == null}">
+                <img src="/images/logo.jpg" class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"  style="height: 100px; width: 200px;"/>
+                </div>
                 <ul>
                     <li>NO CATEGORIE [[${article.categorie.noCategorie}]]</li>
                     <li class="underline" th:text="${article.nomArticle}">Nom

@@ -15,13 +15,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -29,11 +26,9 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(ArticleRepositoryImpl.class);
 
-    private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public ArticleRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public ArticleRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
@@ -67,6 +62,17 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             paramsRetrait.addValue("codePostal", article.getRetrait().getCodePostal());
             paramsRetrait.addValue("ville", article.getRetrait().getVille());
             namedParameterJdbcTemplate.update(sqlRetrait, paramsRetrait);
+
+            if(article.getImage() != null) {
+                String sqlImage = "insert into images (no_article, file_name, mime_type, data) values (:noArticle, :fileName, :mimeType, :data)";
+                MapSqlParameterSource paramsImage = new MapSqlParameterSource();
+                paramsImage.addValue("noArticle", noArticle);
+                paramsImage.addValue("fileName", article.getImage().getFileName());
+                paramsImage.addValue("mimeType", article.getImage().getMimeType());
+                paramsImage.addValue("data", article.getImage().getData());
+
+                namedParameterJdbcTemplate.update(sqlImage, paramsImage);
+            }
         } catch (DataAccessException e) {
             logger.error("Impossible de créer l'article : {}", article, e);
         }
@@ -94,10 +100,11 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Override
     public Optional<Article> getById(int noArticle) {
         String sql = "select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
-                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle, r.rue, r.code_postal, r.ville from articles a " +
+                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle, r.rue, r.code_postal, r.ville, i.no_article, i.file_name, i.mime_type, i.data from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +
                 "left join categories c on a.no_categorie = c.no_categorie " +
+                "left join images i on a.no_article = i.no_article " +
                 "where a.no_article = :noArticle";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("noArticle", noArticle);
@@ -164,10 +171,11 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     public List<Article> getAllWithFilters(FilterDto filters) {
         StringBuilder sql = new StringBuilder();
         sql.append("select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
-                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle,  r.rue, r.code_postal, r.ville from articles a " +
+                "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle,  r.rue, r.code_postal, r.ville, i.no_article, i.file_name, i.mime_type, i.data from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +
-                "left join categories c on a.no_categorie = c.no_categorie ");
+                "left join categories c on a.no_categorie = c.no_categorie " +
+                "left join images i on a.no_article = i.no_article");
 
         boolean where = false;
 
@@ -220,7 +228,6 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
     public int removeCredit(Enchere enchere) {
         int credit = enchere.getUtilisateur().getCredit() - enchere.getMontantEnchere();
-        System.out.println(enchere);
         String sql = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
@@ -265,6 +272,13 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             retrait.setVille(rs.getString("ville"));
             article.setRetrait(retrait);
 
+            // Créer l'image associé
+            Image image = new Image();
+            image.setNoArticle(rs.getInt("no_article"));
+            image.setFileName(rs.getString("file_name"));
+            image.setMimeType(rs.getString("mime_type"));
+            image.setData(rs.getBytes("data"));
+            article.setImage(image);
             return article;
         }
 

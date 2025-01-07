@@ -1,13 +1,8 @@
 package fr.eni.encheres.controllers;
 
-import fr.eni.encheres.bo.Article;
-import fr.eni.encheres.bo.Enchere;
-import fr.eni.encheres.bo.Retrait;
-import fr.eni.encheres.bo.Utilisateur;
+import fr.eni.encheres.bo.*;
 import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.security.CustomUserDetails;
-import fr.eni.encheres.security.UserDetailsServiceImpl;
-import fr.eni.encheres.services.ArticleServiceImpl;
 import fr.eni.encheres.services.CustomUserDetailsService;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
@@ -16,14 +11,15 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -95,8 +91,8 @@ public class ArticleController {
     }
 
     @PostMapping("/articles/ajouter")
-    public String postAjouterArticle(Model model, @AuthenticationPrincipal CustomUserDetails user, @Valid @ModelAttribute("article") Article article, BindingResult result,  RedirectAttributes redirectAttr,
-                                     @RequestParam("ville") String ville, @RequestParam("rue") String rue, @RequestParam("codePostal") String codePostal) {
+    public String postAjouterArticle(Model model, @AuthenticationPrincipal CustomUserDetails user, @Valid @ModelAttribute("article") Article article, BindingResult result, RedirectAttributes redirectAttr,
+                                     @RequestParam("ville") String ville, @RequestParam("rue") String rue, @RequestParam("codePostal") String codePostal, @RequestParam("img") MultipartFile img) {
         Optional<Utilisateur> utilisateurOptional;
         utilisateurOptional = utilisateurService.getById(user.getNoUtilisateur());
         if(utilisateurOptional.isEmpty()) {
@@ -110,6 +106,16 @@ public class ArticleController {
             redirectAttr.addFlashAttribute("article", article);
             return "redirect:/articles/ajouter";
         }
+        Image image = new Image();
+        image.setNoArticle(article.getNoArticle());
+        image.setMimeType(img.getContentType());
+        image.setFileName(img.getOriginalFilename());
+        try {
+            image.setData(img.getBytes());
+        } catch (IOException e) {
+            logger.error("impossible d'upload l'image");
+        }
+        article.setImage(image);
         articleService.add(article);
         return "redirect:/articles";
     }

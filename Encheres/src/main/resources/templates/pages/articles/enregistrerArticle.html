@@ -1,5 +1,5 @@
 <form class="container h-full max-w-lg mx-auto flex flex-col"
-      th:action="${noArticle} ? '/articles/modifier' : '/articles/ajouter'" method="post" th:object="${article}">
+      th:action="${noArticle} ? '/articles/modifier' : '/articles/ajouter'" method="post" th:object="${article}" enctype="multipart/form-data">
     <h1 class="mx-auto text-center text-md my-5">
         <span th:text="${noArticle} ? 'Modifier' : 'Créer'"></span> un article
     </h1>
@@ -47,13 +47,8 @@
 
             <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Photo de l'article</label>
-                <input type="file" id="imageArticle"
+                <input type="file" id="imageArticle" name="img"
                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-
-                <p class="mt-2 text-sm text-red-600 dark:text-red-500">
-                    <span th:each="erreur: ${#fields.errors('description')}" th:text="${erreur}"
-                          class="font-medium"></span>
-                </p>
             </div>
 
             <div>
