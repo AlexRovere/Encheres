@@ -1,5 +1,6 @@
 package fr.eni.encheres.bo;
 
+import fr.eni.encheres.dto.EtatVente;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Range;
 
@@ -23,7 +24,7 @@ public class Article {
     private int prixInitial;
     @PositiveOrZero
     private int prixVente;
-    private String etatVente;
+    private EtatVente etatVente;
     @NotNull
     private boolean retraitEffectue;
     private Retrait retrait;
@@ -108,11 +109,11 @@ public class Article {
         this.prixVente = prixVente;
     }
 
-    public String getEtatVente() {
+    public EtatVente getEtatVente() {
         return etatVente;
     }
 
-    public void setEtatVente(String etatVente) {
+    public void setEtatVente(EtatVente etatVente) {
         this.etatVente = etatVente;
     }
 

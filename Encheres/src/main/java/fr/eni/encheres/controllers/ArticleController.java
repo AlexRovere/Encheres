@@ -6,7 +6,9 @@ import fr.eni.encheres.bo.Retrait;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.security.CustomUserDetails;
+import fr.eni.encheres.security.UserDetailsServiceImpl;
 import fr.eni.encheres.services.ArticleServiceImpl;
+import fr.eni.encheres.services.CustomUserDetailsService;
 import fr.eni.encheres.services.interf.ArticleService;
 import fr.eni.encheres.services.interf.CategorieService;
 import fr.eni.encheres.services.interf.UtilisateurService;
@@ -15,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,13 +35,15 @@ public class ArticleController {
     private final ArticleService articleService;
     private final CategorieService categorieService;
     private final UtilisateurService utilisateurService;
-    private final ArticleServiceImpl articleServiceImpl;
+    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public ArticleController(ArticleService articleService, CategorieService categorieService, UtilisateurService utilisateurService, ArticleServiceImpl articleServiceImpl) {
+    public ArticleController(ArticleService articleService, CategorieService categorieService, UtilisateurService utilisateurService, UserDetailsService userDetailsService, CustomUserDetailsService customUserDetailsService) {
         this.articleService = articleService;
         this.categorieService = categorieService;
         this.utilisateurService = utilisateurService;
-        this.articleServiceImpl = articleServiceImpl;
+        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @GetMapping("/articles")
@@ -53,7 +58,6 @@ public class ArticleController {
 
     @GetMapping("/articles/detail/{noArticle}")
     public String getDetailArticle(Model model, @PathVariable("noArticle") int noArticle) {
-        System.out.println(noArticle);
         Optional<Article> articleOptional = articleService.getById(noArticle);
         if(articleOptional.isEmpty()) {
             return "redirect:/articles";
@@ -167,7 +171,7 @@ public class ArticleController {
     }
 
     @PostMapping("/articles/encheres/{noArticle}")
-    public String postEnchere(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int noArticle, @RequestParam("montantEnchere") int montantEnchere) {
+    public String postEnchere(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int noArticle, @RequestParam("montantEnchere") int montantEnchere, RedirectAttributes redirectAttr) {
         Optional<Article> articleOptional = articleService.getById(noArticle);
         if(articleOptional.isEmpty()) {
             return "redirect:/articles";
@@ -187,14 +191,32 @@ public class ArticleController {
 
         Utilisateur utilisateur = utilisateurOptional.get();
 
+        Enchere lastEnchere = articleService.getMeilleurEnchere(article);
+
+        if((lastEnchere != null && lastEnchere.getMontantEnchere() > montantEnchere) ) {
+            redirectAttr.addFlashAttribute("errorMinimumEnchere", "Vous enchère doit être supérieur à la meilleur offre");
+            return "redirect:/articles/detail/" + article.getNoArticle();
+        }
+
+        if(user.getCredit() < montantEnchere) {
+            redirectAttr.addFlashAttribute("errorNotEnoughCredit", "Vous n'avez pas assez de crédit");
+            return "redirect:/articles/detail/" + article.getNoArticle();
+        }
+
         Enchere enchere = new Enchere();
         enchere.setDateEnchere(LocalDate.now());
         enchere.setMontantEnchere(montantEnchere);
         enchere.setUtilisateur(utilisateur);
 
-        articleService.enchere(article, enchere);
+        try {
+            int newCredit = articleService.enchere(article, enchere);
+            customUserDetailsService.updateCredit(newCredit);
+            redirectAttr.addFlashAttribute("success", "Votre enchère a bien été prise en compte !");
+            return "redirect:/articles/detail/" + article.getNoArticle();
 
-        return "redirect:/articles";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

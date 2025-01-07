@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ArticleRepository extends CrudRepository<Article>{
     List<Article> getAllWithFilters(FilterDto filters);
-    void enchere(Article article, Enchere enchere);
+    int enchere(Article article, Enchere enchere);
 }
