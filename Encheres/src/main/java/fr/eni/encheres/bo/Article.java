@@ -2,7 +2,6 @@ package fr.eni.encheres.bo;
 
 import fr.eni.encheres.dto.EtatVente;
 import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

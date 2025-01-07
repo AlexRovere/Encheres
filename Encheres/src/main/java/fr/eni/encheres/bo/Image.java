@@ -1,18 +1,11 @@
 package fr.eni.encheres.bo;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-
 import java.util.Arrays;
 
 public class Image {
 
-    @Id
-    @Column("no_article")
     private int noArticle;
-    @Column("file_name")
     private String fileName;
-    @Column("mime_type")
     private String mimeType;
     private byte[] data;
 
