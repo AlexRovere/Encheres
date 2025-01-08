@@ -11,8 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
-import org.springframework.boot.context.properties.bind.validation.ValidationErrors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,10 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.Clock;
 import java.util.Optional;
 
 @Controller
@@ -32,13 +28,10 @@ public class UtilisateurController {
     private static final Logger logger = LoggerFactory.getLogger(UtilisateurController.class);
     private final UtilisateurService utilisateurService;
     private final PasswordEncoder passwordEncoder;
-    private final UtilisateurServiceImpl utilisateurServiceImpl;
-    private UserUpdatePasswordDto userUpdatePasswordDto;
 
-    public UtilisateurController(UtilisateurService utilisateurService, PasswordEncoder passwordEncoder, UtilisateurServiceImpl utilisateurServiceImpl) {
+    public UtilisateurController(UtilisateurService utilisateurService, PasswordEncoder passwordEncoder) {
         this.utilisateurService = utilisateurService;
         this.passwordEncoder = passwordEncoder;
-        this.utilisateurServiceImpl = utilisateurServiceImpl;
     }
 
     @GetMapping({"/", "/login"})
