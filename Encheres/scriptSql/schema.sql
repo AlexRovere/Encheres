@@ -59,7 +59,8 @@ CREATE TABLE articles
     prix_vente          INTEGER,
     no_utilisateur      INTEGER      NOT NULL,
     no_categorie        INTEGER      NOT NULL,
-    retrait_effectue    boolean default false
+    retrait_effectue    boolean default false,
+    date_paiement       timestamp
 );
 
 CREATE TABLE images

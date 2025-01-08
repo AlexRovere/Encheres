@@ -25,6 +25,7 @@ insert into articles (nom_article, description, date_debut_encheres, date_fin_en
 VALUES('pantalon', 'en tissu', '2025-01-15', '2025-03-20', 100, null, 1, 2, false),
       ('Monopoly', 'jeux famillial', '2025-02-15', '2025-04-04', 200, null, 2, 3, false),
       ('tableau', 'la joconde !', '2025-01-01', '2025-02-01', 10, null, 3, 1, false),
+      ('test remboursement', 'la joconde !', '2025-01-01', '2025-01-05', 10, null, 1, 1, false),
       ('télé', '4K 65p', '2024-12-15', '2024-12-25', 500, null, 1, 4, false);
 
 -- RETRAITS
@@ -34,4 +35,5 @@ insert into retraits (no_article, rue, code_postal, ville) values (3, '12 rue du
 insert into retraits (no_article, rue, code_postal, ville) values (4, '12 rue du castillet', '96425', 'saleilles');
 
 -- ENCHERES
-insert into encheres (no_utilisateur, no_article, date_enchere, montant_enchere) values (1, 3, '2025-01-01', 111)
+insert into encheres (no_utilisateur, no_article, date_enchere, montant_enchere) values (1, 3, '2025-01-01', 111);
+insert into encheres (no_utilisateur, no_article, date_enchere, montant_enchere) values (2, 4, '2025-01-01', 666)
