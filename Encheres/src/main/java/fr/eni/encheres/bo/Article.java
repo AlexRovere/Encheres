@@ -2,8 +2,10 @@ package fr.eni.encheres.bo;
 
 import fr.eni.encheres.dto.EtatVente;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +18,10 @@ public class Article {
     @Size(min=3, max = 300)
     private String description;
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateDebutEncheres;
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateFinEncheres;
     @PositiveOrZero
     private int prixInitial;
@@ -31,6 +35,7 @@ public class Article {
     private Utilisateur utilisateur;
     private List<Enchere> encheres = new ArrayList<>();
     private Image image;
+    private LocalDateTime datePaiement;
 
     public Article() {
     }
@@ -165,5 +170,13 @@ public class Article {
 
     public Image getImage() {
         return image;
+    }
+
+    public LocalDateTime getDatePaiement() {
+        return datePaiement;
+    }
+
+    public void setDatePaiement(LocalDateTime datePaiement) {
+        this.datePaiement = datePaiement;
     }
 }

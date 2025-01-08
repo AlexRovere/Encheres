@@ -40,12 +40,23 @@ public class UtilisateurController {
     }
 
     @GetMapping("/utilisateurs/detail/{noUtilisateur}")
-    public String detailUtilisateur(Model model, @PathVariable int noUtilisateur) {
+    public String detailUtilisateur(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable int noUtilisateur) {
         Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(noUtilisateur);
         if (utilisateurOptional.isEmpty()) {
             return "redirect:/articles";
         }
         Utilisateur utilisateur = utilisateurOptional.get();
+
+        boolean isYourProfile = false;
+
+        // vérifier si t'es connecté
+        if(user != null) {
+            if(user.getNoUtilisateur() == noUtilisateur) {
+                isYourProfile = true;
+            }
+        }
+
+        model.addAttribute("isYourProfile", isYourProfile);
         model.addAttribute("utilisateur", utilisateur);
         model.addAttribute("body", "pages/utilisateurs/detailUtilisateur");
         return "index";

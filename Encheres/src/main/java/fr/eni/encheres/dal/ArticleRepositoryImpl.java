@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class ArticleRepositoryImpl implements ArticleRepository {
@@ -174,7 +176,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +
                 "left join categories c on a.no_categorie = c.no_categorie " +
-                "left join images i on a.no_article = i.no_article");
+                "left join images i on a.no_article = i.no_article ");
 
         boolean where = false;
 
@@ -216,8 +218,15 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         params.addValue("dateEnchere", enchere.getDateEnchere());
         params.addValue("montantEnchere", enchere.getMontantEnchere());
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+
         try {
-            namedParameterJdbcTemplate.update(sql, params);
+            namedParameterJdbcTemplate.update(sql, params, keyHolder);
+            int noEnchere = (int) keyHolder.getKeys().get("no_enchere");
+
+            enchere.setNoEnchere(noEnchere);
+            restoreCredit(article, enchere);
             return removeCredit(enchere);
         } catch (DataAccessException e) {
             logger.error("Impossible de faire l'enchère", e);
@@ -226,15 +235,85 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     public int removeCredit(Enchere enchere) {
-        int credit = enchere.getUtilisateur().getCredit() - enchere.getMontantEnchere();
+       String sqlUtilisateur = "select credit from utilisateurs where no_utilisateur = :noUtilisateur";
+       MapSqlParameterSource paramsUtilisateur = new MapSqlParameterSource();
+       paramsUtilisateur.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
+       Integer oldCredit = 0;
+        try {
+            oldCredit = namedParameterJdbcTemplate.queryForObject(sqlUtilisateur, paramsUtilisateur, (ResultSet rs, int rowNum) -> {
+                return rs.getInt("credit");  // Récupération du crédit depuis le ResultSet
+            });
+
+            if (oldCredit == null) {
+                logger.error("Le crédit est nul pour l'utilisateur");
+            }
+        }  catch (Exception e) {
+            logger.error("Une erreur inattendue est survenue", e);
+        }
+
+        int newCredit = oldCredit - enchere.getMontantEnchere();
         String sql = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("noUtilisateur", enchere.getUtilisateur().getNoUtilisateur());
-        params.addValue("credit", credit);
+        params.addValue("credit", newCredit);
 
         namedParameterJdbcTemplate.update(sql, params);
 
-        return credit;
+        return newCredit;
+    }
+
+    public void restoreCredit(Article article, Enchere enchere) {
+        // récupère tous les utilisateurs qui ont une enchère en cours sur cet article
+        String sql = "select u.no_utilisateur, u.credit, e.montant_enchere from encheres e left join utilisateurs u on u.no_utilisateur = e.no_utilisateur where e.no_article = :noArticle and e.date_remboursement is null and e.no_enchere <> :noEnchere";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noArticle", article.getNoArticle());
+        params.addValue("noEnchere", enchere.getNoEnchere());
+
+        List<Utilisateur> utilisateurs = namedParameterJdbcTemplate.query(sql, params, (ResultSet rs, int rowNum) -> {
+                int credit = rs.getInt("credit");
+                int montantEnchere = rs.getInt("montant_enchere");
+                int newCredit = credit + montantEnchere;
+
+            Utilisateur utilisateur = new Utilisateur();
+                utilisateur.setNoUtilisateur(rs.getInt("no_utilisateur"));
+                utilisateur.setCredit(newCredit);
+                return utilisateur;
+        });
+
+        // Si un utilisateur avait déjà fait une enchère
+        if(!utilisateurs.isEmpty()) {
+
+            for (Utilisateur utilisateur : utilisateurs) {
+                // Rembourse le crédit non utilisé
+                String sqlUtilisateur = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
+                MapSqlParameterSource paramsUtilisateur = new MapSqlParameterSource();
+                paramsUtilisateur.addValue("credit", utilisateur.getCredit());
+                paramsUtilisateur.addValue("noUtilisateur", utilisateur.getNoUtilisateur());
+
+                namedParameterJdbcTemplate.update(sqlUtilisateur, paramsUtilisateur);
+            }
+
+            List<Integer> noUtilisateurs = utilisateurs.stream()
+                    .map(Utilisateur::getNoUtilisateur)
+                    .collect(Collectors.toList());
+
+            // On passe touts les enchères de cet article à remboursé SAUF celle qui vient d'être créee
+            String sqlEnchere = "update encheres e set date_remboursement = :dateRemboursement where no_article = :noArticle and no_utilisateur IN (:noUtilisateurs) and e.no_enchere <> :noEnchere";
+            MapSqlParameterSource paramsEnchere = new MapSqlParameterSource();
+            paramsEnchere.addValue("dateRemboursement", LocalDateTime.now());
+            paramsEnchere.addValue("noUtilisateurs", noUtilisateurs);
+            paramsEnchere.addValue("noArticle", article.getNoArticle());
+            paramsEnchere.addValue("noEnchere", enchere.getNoEnchere());
+
+            namedParameterJdbcTemplate.update(sqlEnchere, paramsEnchere);
+        }
+
+    }
+
+    public void setRetraitEffectue(Article article) {
+        String sql = "update articles set retrait_effectue = true where no_article = :noArticle";
+        MapSqlParameterSource params = new MapSqlParameterSource("noArticle", article.getNoArticle());
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
     private static class ArticleRowMapper implements RowMapper<Article> {

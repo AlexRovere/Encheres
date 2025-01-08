@@ -3,6 +3,7 @@ package fr.eni.encheres.bo;
 import java.time.LocalDate;
 
 public class Enchere {
+    private int noEnchere;
     private Utilisateur utilisateur;
     private LocalDate dateEnchere;
     private int montantEnchere;
@@ -13,10 +14,19 @@ public class Enchere {
     @Override
     public String toString() {
         return "Enchere{" +
-                "utilisateur=" + utilisateur +
+                "noEnchere=" + noEnchere +
+                ", utilisateur=" + utilisateur +
                 ", dateEnchere=" + dateEnchere +
                 ", montantEnchere=" + montantEnchere +
                 '}';
+    }
+
+    public int getNoEnchere() {
+        return noEnchere;
+    }
+
+    public void setNoEnchere(int noEnchere) {
+        this.noEnchere = noEnchere;
     }
 
     public Utilisateur getUtilisateur() {

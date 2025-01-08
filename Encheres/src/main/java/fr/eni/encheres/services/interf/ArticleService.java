@@ -12,4 +12,5 @@ public interface ArticleService extends CrudService<Article> {
     EtatVente getEtatVente(Article article);
     Enchere getMeilleurEnchere(Article article);
     int enchere(Article article, Enchere enchere);
+    void setRetraitEffectue(Article article);
 }

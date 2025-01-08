@@ -87,4 +87,8 @@ public class ArticleServiceImpl implements ArticleService {
     public int enchere(Article article, Enchere enchere) {
        return articleRepository.enchere(article, enchere);
     }
+
+    public void setRetraitEffectue(Article article) {
+        articleRepository.setRetraitEffectue(article);
+    }
 }

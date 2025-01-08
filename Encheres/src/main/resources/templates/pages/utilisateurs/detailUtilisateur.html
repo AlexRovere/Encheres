@@ -1,8 +1,10 @@
 <form th:action="@{/utilisateurs/modifier/{noUtilisateur}(noUtilisateur=${utilisateur.noUtilisateur})}" method="get" th:object="${utilisateur}"
       style="padding-top: 33px" class="max-w-sm mx-auto h-full flex justify-center flex-col">
-    [[${#authentication.principal.username}]]
-    [[*{pseudo}]]
-    <h1 class="text-3xl font-bold pb-8 text-gray-900 text-center">Mon profil</h1>
+    <h1 class="text-3xl font-bold pb-8 text-gray-900 text-center">
+        <span th:if="${isYourProfile}">Mon profil</span>
+        <span th:if="!${isYourProfile}">Detail de [[*{pseudo}]]</span>
+
+    </h1>
     <div class="overflow-scroll">
         <div class="p-5 flex-col gap-5">
 
@@ -11,27 +13,27 @@
                 <input type="text" name="pseudo" id="pseudo" readonly disabled th:field="*{pseudo}" class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
 
-            <div class="mb-5">
+            <div th:if="${isYourProfile}" class="mb-5">
                 <label for="nom" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nom </label>
                 <input type="text" name="nom" id="nom" readonly disabled th:field="*{nom}" class=" cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
 
-            <div class="mb-5">
+            <div th:if="${isYourProfile}" class="mb-5">
                 <label for="prenom" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prénom </label>
                 <input type="text" name="prenom" id="prenom" readonly disabled th:field="*{prenom}" class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
 
-            <div class="mb-5">
+            <div th:if="${isYourProfile}" class="mb-5">
                 <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email </label>
                 <input type="text" name="email" id="email" readonly disabled th:field="*{email}" class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
 
-            <div class="mb-5">
+            <div th:if="${isYourProfile}" class="mb-5">
                 <label for="tel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Téléphone </label>
                 <input type="text" name="tel" id="tel" readonly disabled th:field="*{telephone}" class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
 
-            <div class="mb-5">
+            <div th:if="${isYourProfile}" class="mb-5">
                 <label for="rue" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rue </label>
                 <input type="text" name="rue" id="rue" readonly disabled th:field="*{rue}" class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
             </div>
@@ -48,10 +50,17 @@
         </div>
     </div>
 
-            <button type="submit"
-                    th:if="${#authentication.principal.username == utilisateur.email}"
+    <div class="flex flex-col gap-5">
+
+            <a type="submit"
+                    th:if="${isYourProfile}"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4
                 focus:outline-none focus:ring-blue-300 font-medium rounded-lg
                 text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700
-                dark:focus:ring-blue-800" >Modifier</button>
+                dark:focus:ring-blue-800" >Modifier</a>
+
+    <a th:href="@{/articles}" class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+        Retour
+    </a>
+    </div>
         </form>

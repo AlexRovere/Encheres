@@ -4,7 +4,7 @@
         <div>Etat de la vente : [[#{${article.etatVente}}]]</div>
         <div>Vendeur : [[${article.utilisateur.pseudo}]]</div>
         <div th:if="*{etatVente.name() == 'COMPLETED' || etatVente.name() == 'COLLECTED'}">
-            <div th:if="${enchere.utilisateur?.pseudo}">[[${enchere.pseudo}]] a remporté l'enchère</div>
+            <div th:if="${enchere.utilisateur?.pseudo}">[[${enchere.utilisateur?.pseudo}]] a remporté l'enchère</div>
             <div th:if="!${enchere.utilisateur?.pseudo}">Personne n'a remporté l'enchère</div>
         </div>
 
@@ -13,9 +13,9 @@
         <input type="hidden" th:field="*{noArticle}">
 
         <div class="flex justify-center">
-        <img th:if="${article.image != null && article.image.data != null}" class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
+        <img th:if="${article.image != null && article.image.data != null && article.image.data.length > 0}" class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
              th:src="'data:image/jpeg;base64,' + ${@imageService.convertByteToString(article.image?.data)}" style="height: 100px; width: 200px;">
-        <img th:if="${article.image.data == null}" src="/images/logo.jpg" class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"  style="height: 100px; width: 200px;"/>
+        <img th:if="${article.image.data == null || article.image.data.length == 0}" src="/images/logo.jpg" class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"  style="height: 100px; width: 200px;"/>
         </div>
 
         <div class="p-5 flex flex-col gap-5">
@@ -57,7 +57,7 @@
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Début de
                         l'enchère</label>
                     <input disabled readonly type="date" name="dateDebutEncheres"
-                           th:value="${@toolsService.formatDateToString(article.dateDebutEncheres)}"
+                           th:value="${article.dateDebutEncheres}"
                            id="dateDebutEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
@@ -66,7 +66,7 @@
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fin de
                         l'enchère</label>
                     <input disabled readonly type="date" name="dateFinEncheres"
-                           th:value="${@toolsService.formatDateToString(article.dateFinEncheres)}" id="dateFinEncheres"
+                           th:value="${article.dateFinEncheres}" id="dateFinEncheres"
                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 </div>
             </div>
@@ -94,31 +94,39 @@
     <div class="text-center text-red-500 text-lg" th:if="${errorMinimumEnchere}">[[${errorMinimumEnchere}]]</div>
 
     <div class="mx-auto flex flex-col justify-around items-center gap-5">
-        <form th:if="${#authentication.principal?.noUtilisateur != article.utilisateur.noUtilisateur && article.etatVente.name() == 'PROCESSING'}" th:action="@{/articles/encheres/{noArticle}(noArticle=${article.noArticle})}" method="post">
+        <form th:if="${noUtilisateur != null && noUtilisateur != article.utilisateur.noUtilisateur && article.etatVente.name() == 'PROCESSING'}" th:action="@{/articles/encheres/{noArticle}(noArticle=${article.noArticle})}" method="post">
             <div class="flex items-center gap-5">
-            Ma proposition :
-            <input type="number" name="montantEnchere" th:min="${enchere.montantEnchere}" th:max="${#authentication.principal.credit}"/>
-            <button type="submit"
-                    class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                Enchérir
-            </button>
+                Ma proposition :
+                <input type="number" name="montantEnchere" th:min="${enchere.montantEnchere}" th:max="${#authentication.principal.credit}"/>
+                <button type="submit"
+                        class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                    Enchérir
+                </button>
             </div>
         </form>
         <div class="flex justify-around gap-5">
-            <button type="button"
-                    class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                <a th:href="@{/articles}">Retour</a>
-            </button>
-            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && (article.etatVente.name() == 'PROCESSING' || article.etatVente.name() == 'CREATED')}"
+            <a th:href="@{/articles}" class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Retour
+            </a>
+
+            <a th:if="${noUtilisateur == article.utilisateur.noUtilisateur &&  article.etatVente.name() == 'CREATED'}"
                th:href="@{/articles/supprimer/{noArticle}(noArticle=${article.noArticle})}" type="button"
                class="flex justify-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 Supprimer l'article
             </a>
-            <a th:if="${#authentication.principal?.noUtilisateur == article.utilisateur.noUtilisateur && (article.etatVente.name() == 'PROCESSING' || article.etatVente.name() == 'CREATED')}"
+            <a th:if="${noUtilisateur == article.utilisateur.noUtilisateur && article.etatVente.name() == 'CREATED'}"
                th:href="@{/articles/modifier/{noArticle}(noArticle=${article.noArticle})}" type="button"
                class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 Modifier l'article
             </a>
+
+            <a th:if="${noUtilisateur == article.utilisateur.noUtilisateur && (article.etatVente.name() == 'COMPLETED' && !article.retraitEffectue) && enchere.utilisateur != null}"
+               th:href="@{/articles/retrait/{noArticle}(noArticle=${article.noArticle})}" type="button"
+               class="flex justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Confirmer le retrait
+            </a>
         </div>
+
+
     </div>
 </div>

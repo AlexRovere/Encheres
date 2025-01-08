@@ -1,5 +1,6 @@
 package fr.eni.encheres.dal;
 
+import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.UtilisateurRepository;
 import org.slf4j.Logger;
@@ -11,6 +12,9 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,8 +91,58 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("login", login);
         Utilisateur utilisateur = namedParameterJdbcTemplate.queryForObject(sql, params, new BeanPropertyRowMapper<>(Utilisateur.class));
-
+        if(utilisateur != null) {
+            checkVente(utilisateur);
+        }
         return Optional.ofNullable(utilisateur);
+    }
 
+    public void checkVente(Utilisateur utilisateur) {
+        String sql = "select a.no_article, e.montant_enchere from articles a left join encheres e on e.no_article = a.no_article " +
+        "where a.no_utilisateur = :noUtilisateur and a.date_paiement is null and a.date_fin_encheres < NOW() and e.date_remboursement is null";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("noUtilisateur", utilisateur.getNoUtilisateur());
+
+        List<Article> articles = namedParameterJdbcTemplate.query(sql, params, (ResultSet rs, int rowNum) -> {
+            Article article = new Article();
+            article.setNoArticle(rs.getInt("no_article"));
+            article.setPrixVente(rs.getInt("montant_enchere"));
+            article.setDatePaiement(LocalDateTime.now());
+
+            return article;
+        });
+
+        Integer creditToAdd = 0;
+
+        for(Article article : articles) {
+            String sqlArticle = "update articles set prix_vente = :prixVente, date_paiement = :datePaiement where no_article = :noArticle";
+            MapSqlParameterSource paramsArticle = new MapSqlParameterSource();
+            paramsArticle.addValue("prixVente", article.getPrixVente());
+            paramsArticle.addValue("datePaiement", article.getDatePaiement());
+            paramsArticle.addValue("noArticle", article.getNoArticle());
+
+            creditToAdd += article.getPrixVente();
+
+            namedParameterJdbcTemplate.update(sqlArticle, paramsArticle);
+        }
+        logger.info("CREDIT TO ADD " + creditToAdd);
+        if(creditToAdd > 0) {
+            try {
+                utilisateur.setCredit(utilisateur.getCredit() + creditToAdd);
+                addCredit(utilisateur, creditToAdd);
+            } catch(Exception e) {
+                logger.error("Erreur lors de l'ajout de crédit", e);
+            }
+        }
+    }
+
+    public void addCredit(Utilisateur utilisateur, int credit) {
+        String sql = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("credit", credit);
+        params.addValue("noUtilisateur", utilisateur.getNoUtilisateur());
+
+        namedParameterJdbcTemplate.update(sql, params);
     }
 }

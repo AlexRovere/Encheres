@@ -1,6 +1,7 @@
 package fr.eni.encheres.controllers;
 
 import fr.eni.encheres.bo.*;
+import fr.eni.encheres.dto.EtatVente;
 import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.security.CustomUserDetails;
 import fr.eni.encheres.services.CustomUserDetailsService;
@@ -53,7 +54,7 @@ public class ArticleController {
 
 
     @GetMapping("/articles/detail/{noArticle}")
-    public String getDetailArticle(Model model, @PathVariable("noArticle") int noArticle) {
+    public String getDetailArticle(Model model, @AuthenticationPrincipal CustomUserDetails user, @PathVariable("noArticle") int noArticle) {
         Optional<Article> articleOptional = articleService.getById(noArticle);
         if(articleOptional.isEmpty()) {
             return "redirect:/articles";
@@ -61,6 +62,14 @@ public class ArticleController {
         Article article = articleOptional.get();
         article.setEtatVente(articleService.getEtatVente(article));
 
+        Integer noUtilisateur = null;
+
+        // vérifier si t'es connecté
+        if(user != null) {
+            noUtilisateur = user.getNoUtilisateur();
+        }
+
+        model.addAttribute("noUtilisateur", noUtilisateur);
         model.addAttribute("enchere", articleService.getMeilleurEnchere(article));
         model.addAttribute("article", article);
         model.addAttribute("body", "pages/articles/detailArticle");
@@ -73,10 +82,6 @@ public class ArticleController {
         Article article = new Article();
         article.setDateDebutEncheres(LocalDate.now());
         article.setDateFinEncheres(LocalDate.now().plusDays(1));
-
-        Optional<Article> optionalArticle = Optional.ofNullable((Article) model.getAttribute("article"));
-
-        article = optionalArticle.orElse(article);
 
        Optional<Utilisateur> utilisateurOptional = utilisateurService.getById(user.getNoUtilisateur());
        if(utilisateurOptional.isEmpty()) {
@@ -102,9 +107,8 @@ public class ArticleController {
         article.setRetrait(retrait);
         article.setUtilisateur(utilisateurOptional.get());
         if(result.hasErrors()){
-            redirectAttr.addFlashAttribute( "org.springframework.validation.BindingResult.article", result);
-            redirectAttr.addFlashAttribute("article", article);
-            return "redirect:/articles/ajouter";
+            model.addAttribute("body", "pages/articles/enregistrerArticle");
+            return "index";
         }
         Image image = new Image();
         image.setNoArticle(article.getNoArticle());
@@ -129,8 +133,9 @@ public class ArticleController {
 
         Article article = articleOptional.get();
 
-        Optional<Article> articleFromModel = Optional.ofNullable((Article) model.getAttribute("article"));
-        article = articleFromModel.orElse(article);
+        if(user == null || article.getUtilisateur().getNoUtilisateur() != user.getNoUtilisateur()) {
+            return "redirect:/articles";
+        }
 
         article.setEtatVente(articleService.getEtatVente(article));
 
@@ -151,9 +156,9 @@ public class ArticleController {
         article.setRetrait(retrait);
         article.setUtilisateur(utilisateurOptional.get());
         if(result.hasErrors()){
-            redirectAttr.addFlashAttribute( "org.springframework.validation.BindingResult.article", result);
-            redirectAttr.addFlashAttribute("article", article);
-            return "redirect:/articles/modifier/" + article.getNoArticle();
+            model.addAttribute("noArticle", article.getNoArticle());
+            model.addAttribute("body", "pages/articles/enregistrerArticle");
+            return "index";
         }
         articleService.update(article);
         return "redirect:/articles";
@@ -223,6 +228,30 @@ public class ArticleController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/articles/retrait/{noArticle}")
+    public String confirmerRetrait(Model model, @PathVariable("noArticle") int noArticle, @AuthenticationPrincipal CustomUserDetails user) {
+        Optional<Article> articleOptional = articleService.getById(noArticle);
+        if(articleOptional.isEmpty()) {
+            return "redirect:/articles";
+        }
+
+        Article article = articleOptional.get();
+
+        if(article.getUtilisateur().getNoUtilisateur() != user.getNoUtilisateur()) {
+            return "redirect:/articles";
+        }
+
+        EtatVente etatVente = articleService.getEtatVente(article);
+
+        if(etatVente != EtatVente.COMPLETED) {
+            return "redirect:/articles";
+        }
+
+        articleService.setRetraitEffectue(article);
+
+        return "redirect:/articles/detail/" + article.getNoArticle();
     }
 
 
