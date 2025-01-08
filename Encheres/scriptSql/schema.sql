@@ -17,7 +17,8 @@ CREATE TABLE encheres
     no_utilisateur  INTEGER   NOT NULL,
     no_article      INTEGER   NOT NULL,
     date_enchere    timestamp NOT NULL,
-    montant_enchere INTEGER   NOT NULL
+    montant_enchere INTEGER   NOT NULL,
+    date_remboursement  timestamp
 );
 
 CREATE TABLE retraits
@@ -72,14 +73,8 @@ CREATE TABLE images
 ALTER TABLE utilisateurs
     add constraint UQ_utilisateurs_email UNIQUE (email);
 
-
 ALTER TABLE utilisateurs
     add constraint UQ_utilisateurs_pseudo UNIQUE (pseudo);
-
-ALTER TABLE articles
-    ADD CONSTRAINT encheres_utilisateur_fk FOREIGN KEY ( no_utilisateur ) REFERENCES utilisateurs ( no_utilisateur )
-        ON DELETE NO ACTION
-        ON UPDATE no action ;
 
 ALTER TABLE images
     ADD CONSTRAINT images_articles_fk FOREIGN KEY ( no_article ) REFERENCES articles ( no_article )
@@ -89,14 +84,14 @@ ALTER TABLE images
 ALTER TABLE encheres
     ADD CONSTRAINT encheres_articles_fk FOREIGN KEY ( no_article )
         REFERENCES articles ( no_article )
-        ON DELETE NO ACTION
-        ON UPDATE no action ;
+        ON DELETE cascade
+        ON UPDATE cascade  ;
 
 ALTER TABLE retraits
     ADD CONSTRAINT retraits_articles_fk FOREIGN KEY ( no_article )
         REFERENCES articles ( no_article )
-        ON DELETE NO ACTION
-        ON UPDATE no action ;
+        ON DELETE cascade
+        ON UPDATE cascade ;
 
 ALTER TABLE articles
     ADD CONSTRAINT articles_categories_fk FOREIGN KEY ( no_categorie )
@@ -107,5 +102,5 @@ ALTER TABLE articles
 ALTER TABLE articles
     ADD CONSTRAINT ventes_utilisateur_fk FOREIGN KEY ( no_utilisateur )
         REFERENCES utilisateurs ( no_utilisateur )
-        ON DELETE NO ACTION
+        ON DELETE cascade
         ON UPDATE no action ;
