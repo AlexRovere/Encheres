@@ -13,45 +13,72 @@
                 <label for="pseudo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pseudo</label>
                 <input type="text" id="pseudo" th:field="*{pseudo}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Pseudo">
             </div>
+            <div th:if="${#fields.hasErrors('pseudo')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('pseudo')}" th:text="${err}"></p>
+            </div>
 
             <div class="mb-5">
                 <label for="nom" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nom</label>
                 <input type="text" id="nom" th:field="*{nom}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Nom">
+            </div>
+            <div th:if="${#fields.hasErrors('nom')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('nom')}" th:text="${err}"></p>
             </div>
 
             <div class="mb-5">
                 <label for="prenom" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Prénom</label>
                 <input type="text" id="prenom" th:field="*{prenom}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Prénom">
             </div>
+            <div th:if="${#fields.hasErrors('prenom')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('prenom')}" th:text="${err}"></p>
+            </div>
 
             <div class="mb-5">
             <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-mail</label>
             <input type="text" id="email" th:field="*{email}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="E-mail">
+            </div>
+            <div th:if="${#fields.hasErrors('email')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('email')}" th:text="${err}"></p>
             </div>
 
             <div class="mb-5">
             <label for="tel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Téléphone</label>
             <input type="text" id="tel" th:field="*{telephone} "class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Téléphone">
             </div>
+            <div th:if="${#fields.hasErrors('telephone')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('telephone')}" th:text="${err}"></p>
+            </div>
 
             <div class="mb-5">
                 <label for="rue" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rue</label>
                 <input type="text" id="rue" th:field="*{rue}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Rue">
+            </div>
+            <div th:if="${#fields.hasErrors('rue')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('rue')}" th:text="${err}"></p>
             </div>
 
             <div class="mb-5">
                 <label for="codePostal" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Code Postal</label>
                 <input type="text" id="codePostal" th:field="*{codePostal}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Code Postal">
             </div>
+            <div th:if="${#fields.hasErrors('codePostal')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('codePostal')}" th:text="${err}"></p>
+            </div>
 
             <div class="mb-5">
                 <label for="ville" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ville</label>
                 <input type="text" id="ville" th:field="*{ville}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Ville">
             </div>
+            <div th:if="${#fields.hasErrors('ville')}" class="text-red-600 text-sm mb-4">
+                <p th:each="err : ${#fields.errors('ville')}" th:text="${err}"></p>
+            </div>
 
             <div class="mb-5" th:if="${afficherMotDePasse}">
                 <label for="motDePasse" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mot de passe</label>
                 <input type="text" id="motDePasse" th:field="*{motDePasse}" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Mot de passe">
+                <div th:if="${#fields.hasErrors('motDePasse')}" class="text-red-600 text-sm mb-4">
+                    <p th:each="err : ${#fields.errors('motDePasse')}" th:text="${err}"></p>
+                </div>
             </div>
         </div>
     </div>

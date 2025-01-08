@@ -64,7 +64,13 @@ public class UtilisateurController {
     }
 
     @PostMapping("/utilisateurs/ajouter")
-    public String enregistrerUtilisateur(Utilisateur utilisateur) {
+    public String enregistrerUtilisateur(@Valid @ModelAttribute("utilisateur") Utilisateur utilisateur,
+                                         BindingResult result, Model model) {
+        model.addAttribute("afficherMotDePasse", true);
+        if (result.hasErrors()) {
+            model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
+            return "index";
+        }
         utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
         utilisateurService.add(utilisateur);
         return "redirect:/articles";
