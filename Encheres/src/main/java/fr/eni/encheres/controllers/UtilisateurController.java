@@ -3,7 +3,6 @@ package fr.eni.encheres.controllers;
 import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dto.UserUpdatePasswordDto;
 import fr.eni.encheres.security.CustomUserDetails;
-import fr.eni.encheres.services.UtilisateurServiceImpl;
 import fr.eni.encheres.services.interf.UtilisateurService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -93,10 +92,16 @@ public class UtilisateurController {
 
     // Modification sur enregistrerUtilisateur
     @PostMapping("/utilisateurs/modifier")
-    public String modifierUtilisateur(Model model, Utilisateur utilisateur) {
+    public String modifierUtilisateur(Model model, @Valid @ModelAttribute("utilisateur") Utilisateur utilisateur,
+                                      BindingResult result) {
         Optional<Utilisateur> utilisateurOpt = utilisateurService.getById(utilisateur.getNoUtilisateur());
         if (utilisateurOpt.isEmpty()) {
             return "redirect:/articles";
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("noUtilisateur", utilisateur.getNoUtilisateur());
+            model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
+            return "index";
         }
         model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
         utilisateurService.update(utilisateur);
