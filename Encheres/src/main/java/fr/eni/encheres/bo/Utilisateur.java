@@ -21,7 +21,7 @@ public class Utilisateur {
     )
     private String email;
     @Pattern(
-            regexp = "^[0-9]{10}$",
+            regexp = "^$|^[0-9]{10}$",
             message = "Le numéro de téléphone doit contenir exactement 10 chiffres."
     )
     private String telephone;
