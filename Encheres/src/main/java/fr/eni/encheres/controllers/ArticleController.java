@@ -3,6 +3,7 @@ package fr.eni.encheres.controllers;
 import fr.eni.encheres.bo.*;
 import fr.eni.encheres.dto.EtatVente;
 import fr.eni.encheres.dto.FilterDto;
+import fr.eni.encheres.exceptions.EnchereException;
 import fr.eni.encheres.security.CustomUserDetails;
 import fr.eni.encheres.services.CustomUserDetailsService;
 import fr.eni.encheres.services.interf.ArticleService;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -106,10 +108,17 @@ public class ArticleController {
         Retrait retrait = new Retrait(rue, codePostal, ville);
         article.setRetrait(retrait);
         article.setUtilisateur(utilisateurOptional.get());
+
+        if(articleService.isDateDebutSuperorToDateFin(article.getDateDebutEncheres(), article.getDateFinEncheres())) {
+            result.rejectValue("dateFinEncheres", "dateFinEncheres.invalid", "La date de fin d'enchère doit être supérieur à la date de début d'enchère");
+        }
+
         if(result.hasErrors()){
+            model.addAttribute("noArticle", article.getNoArticle());
             model.addAttribute("body", "pages/articles/enregistrerArticle");
             return "index";
         }
+
         Image image = new Image();
         image.setNoArticle(article.getNoArticle());
         image.setMimeType(img.getContentType());
@@ -155,6 +164,12 @@ public class ArticleController {
         Retrait retrait = new Retrait(rue, codePostal, ville);
         article.setRetrait(retrait);
         article.setUtilisateur(utilisateurOptional.get());
+
+
+        if(!articleService.isDateDebutSuperorToDateFin(article.getDateDebutEncheres(), article.getDateFinEncheres())) {
+            result.rejectValue("dateFinEncheres", "dateFinEncheres.invalid", "La date de fin d'enchère doit être supérieur à la date de début d'enchère");
+        }
+
         if(result.hasErrors()){
             model.addAttribute("noArticle", article.getNoArticle());
             model.addAttribute("body", "pages/articles/enregistrerArticle");
@@ -202,15 +217,11 @@ public class ArticleController {
 
         Utilisateur utilisateur = utilisateurOptional.get();
 
-        Enchere lastEnchere = articleService.getMeilleurEnchere(article);
 
-        if((lastEnchere != null && lastEnchere.getMontantEnchere() > montantEnchere) ) {
-            redirectAttr.addFlashAttribute("errorMinimumEnchere", "Vous enchère doit être supérieur à la meilleur offre");
-            return "redirect:/articles/detail/" + article.getNoArticle();
-        }
-
-        if(user.getCredit() < montantEnchere) {
-            redirectAttr.addFlashAttribute("errorNotEnoughCredit", "Vous n'avez pas assez de crédit");
+        try {
+            articleService.checkEnchere(article, montantEnchere, user.getCredit());
+        } catch (EnchereException e) {
+            redirectAttr.addFlashAttribute(e.getErrorType(), e.getMessage());
             return "redirect:/articles/detail/" + article.getNoArticle();
         }
 

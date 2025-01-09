@@ -54,4 +54,9 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     public Optional<Utilisateur> getByLogin(String login) {
         return utilisateurRepository.getByLogin(login);
     }
+
+    @Override
+    public void updatePassword(Utilisateur utilisateur) {
+        utilisateurRepository.updatePassword(utilisateur);
+    }
 }

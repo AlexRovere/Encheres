@@ -5,6 +5,7 @@ import fr.eni.encheres.bo.Utilisateur;
 import fr.eni.encheres.dal.interf.UtilisateurRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -68,9 +69,13 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
     // Update
     @Override
     public void update(Utilisateur utilisateur) {
-        String sql = "UPDATE utilisateurs SET pseudo = :pseudo, nom = :nom, prenom = :prenom, email = :email, telephone = :telephone, rue = :rue, code_postal = :codePostal, ville = :ville, mot_de_passe = :motDePasse" +
+        String sql = "UPDATE utilisateurs SET pseudo = :pseudo, nom = :nom, prenom = :prenom, email = :email, telephone = :telephone, rue = :rue, code_postal = :codePostal, ville = :ville" +
                 " WHERE no_utilisateur = :noUtilisateur " ;
-        namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(utilisateur));
+        try {
+            namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(utilisateur));
+        } catch (DataAccessException e) {
+            logger.error("Erreur lors de la mis à jour de l'utilisateur", e);
+        }
     }
 
     // Delete
@@ -112,7 +117,7 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
 
             return article;
         });
-
+        
         Integer creditToAdd = 0;
 
         for(Article article : articles) {
@@ -130,19 +135,25 @@ public class UtilisateurRepositoryImpl implements UtilisateurRepository {
         if(creditToAdd > 0) {
             try {
                 utilisateur.setCredit(utilisateur.getCredit() + creditToAdd);
-                addCredit(utilisateur, creditToAdd);
+                setCreditInDb(utilisateur);
             } catch(Exception e) {
                 logger.error("Erreur lors de l'ajout de crédit", e);
             }
         }
     }
 
-    public void addCredit(Utilisateur utilisateur, int credit) {
+    public void setCreditInDb(Utilisateur utilisateur) {
         String sql = "update utilisateurs set credit = :credit where no_utilisateur = :noUtilisateur";
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("credit", credit);
+        params.addValue("credit", utilisateur.getCredit());
         params.addValue("noUtilisateur", utilisateur.getNoUtilisateur());
 
         namedParameterJdbcTemplate.update(sql, params);
+    }
+
+    @Override
+    public void updatePassword(Utilisateur utilisateur) {
+        String sql = "update utilisateurs set mot_de_passe = :motDePasse where no_utilisateur = :noUtilisateur";
+        namedParameterJdbcTemplate.update(sql, new BeanPropertySqlParameterSource(utilisateur));
     }
 }

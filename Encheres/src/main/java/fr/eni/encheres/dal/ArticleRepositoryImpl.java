@@ -100,7 +100,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Transactional
     @Override
     public Optional<Article> getById(int noArticle) {
-        String sql = "select a.no_article, nom_article, description, date_debut_encheres, date_fin_encheres, " +
+        String sql = "select a.no_article, nom_article, a.description, date_debut_encheres, date_fin_encheres, " +
                 "prix_initial, prix_vente, retrait_effectue, a.no_utilisateur, a.no_categorie, u.pseudo, c.libelle, r.rue, r.code_postal, r.ville, i.no_article, i.file_name, i.mime_type, i.data from articles a " +
                 "left join utilisateurs u on a.no_utilisateur = u.no_utilisateur " +
                 "left join retraits r on a.no_article = r.no_article " +

@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface UtilisateurRepository extends CrudRepository<Utilisateur> {
 
     Optional<Utilisateur> getByLogin(String login);
+    void updatePassword(Utilisateur utilisateur);
 }

@@ -3,6 +3,7 @@ package fr.eni.encheres.services;
 import fr.eni.encheres.bo.Article;
 import fr.eni.encheres.bo.Enchere;
 import fr.eni.encheres.dal.interf.ArticleRepository;
+import fr.eni.encheres.exceptions.EnchereException;
 import fr.eni.encheres.dto.EtatVente;
 import fr.eni.encheres.dto.FilterDto;
 import fr.eni.encheres.services.interf.ArticleService;
@@ -90,5 +91,24 @@ public class ArticleServiceImpl implements ArticleService {
 
     public void setRetraitEffectue(Article article) {
         articleRepository.setRetraitEffectue(article);
+    }
+
+    public void checkEnchere(Article article, int montantEnchere, int userCredit) throws EnchereException {
+        Enchere lastEnchere = getMeilleurEnchere(article);
+        if((lastEnchere.getMontantEnchere() == 0 && article.getPrixInitial() >= montantEnchere) ) {
+            throw new EnchereException("errorMinimumEnchere", "Votre enchère doit être supérieur au prix initial");
+        }
+
+        if((lastEnchere != null && lastEnchere.getMontantEnchere() >= montantEnchere) ) {
+            throw new EnchereException("errorMinimumEnchere", "Votre enchère doit être supérieur à la meilleur offre");
+        }
+
+        if(userCredit < montantEnchere) {
+            throw new EnchereException("errorNotEnoughCredit", "Vous n'avez pas assez de crédit");
+        }
+    }
+
+    public boolean isDateDebutSuperorToDateFin(LocalDate dateDebutEncheres, LocalDate dateFinEncheres) {
+        return dateDebutEncheres.isAfter(dateFinEncheres);
     }
 }

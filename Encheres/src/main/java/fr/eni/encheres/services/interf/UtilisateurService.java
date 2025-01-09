@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface UtilisateurService extends CrudService<Utilisateur> {
     Optional<Utilisateur> getByLogin(String login);
+    void updatePassword(Utilisateur utilisateur);
 }

@@ -83,7 +83,7 @@ public class UtilisateurController {
         }
         utilisateur.setMotDePasse(passwordEncoder.encode(utilisateur.getMotDePasse()));
         utilisateurService.add(utilisateur);
-        return "redirect:/articles";
+        return "redirect:/login";
     }
 
     @GetMapping("/utilisateurs/modifier/{noUtilisateur}")
@@ -109,7 +109,9 @@ public class UtilisateurController {
         if (utilisateurOpt.isEmpty()) {
             return "redirect:/articles";
         }
-        if (result.hasErrors()) {
+
+        // TODO trouver une meilleure solution pour skip l'erreur mot de passe
+        if (result.hasErrors() && result.getFieldErrors().size() > 1) {
             model.addAttribute("noUtilisateur", utilisateur.getNoUtilisateur());
             model.addAttribute("body", "pages/utilisateurs/enregistrerUtilisateur");
             return "index";
@@ -170,7 +172,7 @@ public class UtilisateurController {
         Utilisateur utilisateur = utilisateurOpt.get();
         String motDePasseHashed = passwordEncoder.encode(userUpdatePasswordDto.getNouveauMotDePasse());
         utilisateur.setMotDePasse(motDePasseHashed);
-        utilisateurService.update(utilisateur);
+        utilisateurService.updatePassword(utilisateur);
 
         redirectAttributes.addFlashAttribute("enregistrementReussi", "Mot de passe modifié avec succès.");
         return "redirect:/utilisateurs/modifier/" + utilisateur.getNoUtilisateur();
