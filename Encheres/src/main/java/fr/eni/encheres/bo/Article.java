@@ -11,21 +11,26 @@ import java.util.List;
 
 public class Article {
     private int noArticle;
-    @NotBlank
-    @Size(min=3, max= 50)
+
+    @NotBlank(message = "Ne doit pas être vide")
+    @Size(min=3, max= 50, message="Doit contenir entre 3 et 50 caractères")
     private String nomArticle;
-    @NotBlank
-    @Size(min=3, max = 300)
+
+    @NotBlank(message = "Ne doit pas être vide")
+    @Size(min=3, max = 300, message="Doit contenir entre 3 et 300 caractères")
     private String description;
-    @NotNull
+
+    @NotNull(message = "Ne doit pas être vide")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateDebutEncheres;
-    @NotNull
+
+    @NotNull(message = "Ne doit pas être vide")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateFinEncheres;
-    @PositiveOrZero
+
+    @PositiveOrZero(message = "Doit être supérieur à 0")
     private int prixInitial;
-    @PositiveOrZero
+
     private int prixVente;
     private EtatVente etatVente;
     @NotNull
