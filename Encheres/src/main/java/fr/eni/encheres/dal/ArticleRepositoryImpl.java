@@ -179,14 +179,13 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 "left join images i on a.no_article = i.no_article ");
 
         boolean where = false;
+        MapSqlParameterSource params = new MapSqlParameterSource();
 
         if (filters.getNomArticle() != null && !filters.getNomArticle().isBlank()) {
-            if (!where) {
-                sql.append("where ");
-                where = true;
-            }
-            sql.append("lower(nom_article) LIKE '%").append(filters.getNomArticle().toLowerCase()).append("%' ");
-        }
+            sql.append("where ");
+            where = true;
+            sql.append("lower(nom_article) LIKE :nomArticle ");
+            params.addValue("nomArticle", "%" + filters.getNomArticle().toLowerCase() + "%");        }
 
         if (filters.getNoCategorie() != null && filters.getNoCategorie() > 0) {
             if (!where) {
@@ -195,13 +194,14 @@ public class ArticleRepositoryImpl implements ArticleRepository {
             } else {
                 sql.append("and ");
             }
-            sql.append("c.no_categorie = ").append(filters.getNoCategorie()).append(" ");
+            sql.append("c.no_categorie = :noCategorie ");
+            params.addValue("noCategorie", filters.getNoCategorie());
         }
 
-
         List<Article> articles = new ArrayList<>();
+
         try {
-            articles = namedParameterJdbcTemplate.query(sql.toString(), new ArticleRowMapper());
+            articles = namedParameterJdbcTemplate.query(sql.toString(), params, new ArticleRowMapper());
         } catch (DataAccessException e) {
             logger.error("Impossible de récupérer la liste des articles", e);
         }
